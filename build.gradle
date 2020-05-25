@@ -1,0 +1,96 @@
+
+// Folder where the plugins are built
+ext.pluginsDir = "${rootProject.buildDir}"
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group 'com.lucidworks.fusion.connector'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "https://artifactory.lucidworks.com/artifactory/public-artifacts/"
+    }
+}
+
+dependencies {
+    implementation "com.lucidworks-connector.sdk:connector-plugin-sdk:${connectorsSDKVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    baseName = "${project.name}"
+}
+
+task plugin(type: Jar) {
+    archiveName = "${project.name}" + ".zip"
+    manifest {
+        attributes 'Plugin-Class': "${pluginClass}",
+                'Plugin-Type': "connector",
+                'Plugin-Id': "${pluginId}",
+                'Plugin-Version': "${version}",
+                'Plugin-Provider': "${pluginProvider}",
+                'Plugin-Connectors-SDK-Version': "${connectorsSDKVersion}"
+    }
+//    into('lib') {
+//        from configurations.compile - configurations.provided
+//        // Copy the plugin
+//        from jar
+//    }
+    extension('zip')
+}
+
+task assemblePlugin(type: Copy) {
+    from plugin
+    into pluginsDir
+}
+
+//    task deploy(type: Exec, dependsOn: ["assemblePlugin"]) {
+//        def service = "${restService}"
+//        if (!service.endsWith("/")) {
+//            service += "/"
+//        }
+//        service += "plugins"
+//        commandLine "curl",
+//                "-m ${maxTimeout}",
+//                "-u",
+//                "${userPass}",
+//                "-X",
+//                "PUT",
+//                "-H",
+//                "content-type:application/zip",
+//                "${service}",
+//                "--data-binary",
+//                "@${pluginsDir}/${plugin.outputs.files.singleFile.getName()}"
+//        doLast {
+//            logger.info("Curl result: ${standardOutput.toString().trim()}")
+//        }
+//    }
+
+//    task connect(type: Exec, dependsOn: ["assemblePlugin"]) {
+//        def clientJar = "${clientJarAbsolutePath}"
+//        def argsList = []
+//        argsList << "java"
+//        argsList << "-Dcom.lucidworks.fusion.plugin.hosts=${fusionRpcTarget}"
+//        argsList << "-Dcom.lucidworks.fusion.plugin.stop.port=${stopPort}"
+//        if (project.hasProperty("debug")) {
+//            argsList << "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5010"
+//        }
+//        argsList << "-jar"
+//        argsList << clientJar
+//        argsList << "${project.buildDir}/libs/${project.name}.zip"
+//
+//        commandLine argsList
+//
+//        doFirst {
+//            println "   -- Using client-jar ${clientJar}"
+//            println "   -- Connecting plugin ${project.buildDir}/libs/${project.name}.zip to ${fusionRpcTarget}"
+//        }
+//    }
