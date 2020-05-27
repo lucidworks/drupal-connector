@@ -16,10 +16,10 @@ public class DefaultFeedGenerator implements ContentGenerator {
                 .put("xyz_lola2", UUID.randomUUID().toString())
                 .put("qwe_lola3", UUID.randomUUID().toString())
                 .put("dfg_lola4", UUID.randomUUID().toString())
-                .put("ghy_s", UUID.randomUUID().toString())
-                .put("uik_s", UUID.randomUUID().toString())
-                .put("awf_s", UUID.randomUUID().toString())
-                .put("tyu_s", UUID.randomUUID().toString())
+                .put("ghy_lola5", UUID.randomUUID().toString())
+                .put("uik_lola6", UUID.randomUUID().toString())
+                .put("awf_lola7", UUID.randomUUID().toString())
+                .put("tyu_lola8", UUID.randomUUID().toString())
                 .build();
     }
 

@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     implementation "com.lucidworks-connector.sdk:connector-plugin-sdk:${connectorsSDKVersion}"
-    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "org.projectlombok:lombok:${lombokVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

@@ -11,7 +11,7 @@ import com.lucidworks.fusion.schema.SchemaAnnotations.StringSchema;
         description = "A Drupal 8 connector",
         category = "Drupal8"
 )
-public interface FeedConfig extends ConnectorConfig<FeedConfig.Properties> {
+public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties> {
 
     /**
      * Connector specific settings

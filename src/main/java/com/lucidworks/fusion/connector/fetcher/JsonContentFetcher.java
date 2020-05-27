@@ -2,7 +2,7 @@ package com.lucidworks.fusion.connector.fetcher;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import com.lucidworks.fusion.connector.config.FeedConfig;
+import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.content.Content;
 import com.lucidworks.fusion.connector.content.ContentEntry;
 import com.lucidworks.fusion.connector.content.ContentGenerator;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static com.lucidworks.fusion.connector.plugin.api.validation.constants.FetchInputValidatorConstants.NOT_MODIFIED;
 
-public class DrupalContentFetcher implements ContentFetcher {
+public class JsonContentFetcher implements ContentFetcher {
 
     private final static String CHECKPOINT_PREFIX = "checkpoint";
     private final static String LAST_JOB_RUN_DATE_TIME = "lastJobRunDateTime";
@@ -24,12 +24,12 @@ public class DrupalContentFetcher implements ContentFetcher {
     private final static String ENTRY_INDEX_START = "entryIndexStart";
     private final static String ENTRY_INDEX_END = "entryIndexEnd";
 
-    private final FeedConfig connectorConfig;
+    private final ContentConfig connectorConfig;
     private final ContentGenerator generator;
 
     @Inject
-    public DrupalContentFetcher(
-            FeedConfig connectorConfig,
+    public JsonContentFetcher(
+            ContentConfig connectorConfig,
             ContentGenerator generator
     ) {
         this.connectorConfig = connectorConfig;

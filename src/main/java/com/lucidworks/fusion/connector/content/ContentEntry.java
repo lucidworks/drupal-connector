@@ -2,7 +2,9 @@ package com.lucidworks.fusion.connector.content;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class ContentEntry {
 
     private String id;
@@ -20,15 +22,4 @@ public class ContentEntry {
         this.lastUpdated = lastUpdated;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public long getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public String getTitle() {
-        return title;
-    }
 }
