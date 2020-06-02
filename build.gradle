@@ -20,9 +20,10 @@ repositories {
 
 dependencies {
     implementation "com.lucidworks-connector.sdk:connector-plugin-sdk:${connectorsSDKVersion}"
-    implementation "org.projectlombok:lombok:${lombokVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.github.jasminb:jsonapi-converter:${jsonApiVersion}"
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -40,11 +41,11 @@ task plugin(type: Jar) {
                 'Plugin-Provider': "${pluginProvider}",
                 'Plugin-Connectors-SDK-Version': "${connectorsSDKVersion}"
     }
-//    into('lib') {
-//        from configurations.compile - configurations.provided
-//        // Copy the plugin
-//        from jar
-//    }
+    into('lib') {
+        from configurations.compile - configurations.compileOnly
+        // Copy the plugin
+        from jar
+    }
     extension('zip')
 }
 
@@ -53,45 +54,45 @@ task assemblePlugin(type: Copy) {
     into pluginsDir
 }
 
-//    task deploy(type: Exec, dependsOn: ["assemblePlugin"]) {
-//        def service = "${restService}"
-//        if (!service.endsWith("/")) {
-//            service += "/"
-//        }
-//        service += "plugins"
-//        commandLine "curl",
-//                "-m ${maxTimeout}",
-//                "-u",
-//                "${userPass}",
-//                "-X",
-//                "PUT",
-//                "-H",
-//                "content-type:application/zip",
-//                "${service}",
-//                "--data-binary",
-//                "@${pluginsDir}/${plugin.outputs.files.singleFile.getName()}"
-//        doLast {
-//            logger.info("Curl result: ${standardOutput.toString().trim()}")
-//        }
-//    }
+task deploy(type: Exec, dependsOn: ["assemblePlugin"]) {
+    def service = "${restService}"
+    if (!service.endsWith("/")) {
+        service += "/"
+    }
+    service += "plugins"
+    commandLine "curl",
+            "-m ${maxTimeout}",
+            "-u",
+            "${userPass}",
+            "-X",
+            "PUT",
+            "-H",
+            "content-type:application/zip",
+            "${service}",
+            "--data-binary",
+            "@${pluginsDir}/${plugin.outputs.files.singleFile.getName()}"
+    doLast {
+        logger.info("Curl result: ${standardOutput.toString().trim()}")
+    }
+}
 
-//    task connect(type: Exec, dependsOn: ["assemblePlugin"]) {
-//        def clientJar = "${clientJarAbsolutePath}"
-//        def argsList = []
-//        argsList << "java"
-//        argsList << "-Dcom.lucidworks.fusion.plugin.hosts=${fusionRpcTarget}"
-//        argsList << "-Dcom.lucidworks.fusion.plugin.stop.port=${stopPort}"
-//        if (project.hasProperty("debug")) {
-//            argsList << "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5010"
-//        }
-//        argsList << "-jar"
-//        argsList << clientJar
-//        argsList << "${project.buildDir}/libs/${project.name}.zip"
-//
-//        commandLine argsList
-//
-//        doFirst {
-//            println "   -- Using client-jar ${clientJar}"
-//            println "   -- Connecting plugin ${project.buildDir}/libs/${project.name}.zip to ${fusionRpcTarget}"
-//        }
-//    }
+task connect(type: Exec, dependsOn: ["assemblePlugin"]) {
+    def clientJar = "${clientJarAbsolutePath}"
+    def argsList = []
+    argsList << "java"
+    argsList << "-Dcom.lucidworks.fusion.plugin.hosts=${fusionRpcTarget}"
+    argsList << "-Dcom.lucidworks.fusion.plugin.stop.port=${stopPort}"
+    if (project.hasProperty("debug")) {
+        argsList << "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5010"
+    }
+    argsList << "-jar"
+    argsList << clientJar
+    argsList << "${project.buildDir}/libs/${project.name}.zip"
+
+    commandLine argsList
+
+    doFirst {
+        println "   -- Using client-jar ${clientJar}"
+        println "   -- Connecting plugin ${project.buildDir}/libs/${project.name}.zip to ${fusionRpcTarget}"
+    }
+}
