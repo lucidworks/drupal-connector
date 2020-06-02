@@ -119,7 +119,7 @@ public class JsonContentFetcher implements ContentFetcher {
     }
 
     private int getEntryIndexEnd(FetchInput fetchInput) {
-        if (!Strings.isNullOrEmpty(connectorConfig.properties().url())) {
+        if (!Strings.isNullOrEmpty(connectorConfig.properties().getUrl())) {
             return 0;
         } else if (!fetchInput.hasId()) {
             return connectorConfig.properties().generateProperties().entriesTotal();
@@ -129,7 +129,7 @@ public class JsonContentFetcher implements ContentFetcher {
     }
 
     private int getEntryIndexStart(FetchInput fetchInput) {
-        if (!Strings.isNullOrEmpty(connectorConfig.properties().url()) || !fetchInput.hasId()) {
+        if (!Strings.isNullOrEmpty(connectorConfig.properties().getUrl()) || !fetchInput.hasId()) {
             return 0;
         }
         return Integer.valueOf(fetchInput.getMetadata().get(ENTRY_INDEX_START).toString()) +

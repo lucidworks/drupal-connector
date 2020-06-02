@@ -32,7 +32,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
                 description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')"
         )
         @StringSchema
-        String url();
+        String getUrl();
 
     }
 
