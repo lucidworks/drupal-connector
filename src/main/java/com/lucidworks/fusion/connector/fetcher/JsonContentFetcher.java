@@ -2,19 +2,18 @@ package com.lucidworks.fusion.connector.fetcher;
 
 import com.google.common.collect.ImmutableMap;
 import com.lucidworks.fusion.connector.config.ContentConfig;
-import com.lucidworks.fusion.connector.content.*;
-import com.lucidworks.fusion.connector.plugin.api.config.ConnectorConfig;
+import com.lucidworks.fusion.connector.content.DrupalContent;
+import com.lucidworks.fusion.connector.content.DrupalContentEntry;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
-import com.lucidworks.fusion.connector.service.config.DrupalOkHttp;
+import com.lucidworks.fusion.connector.service.DrupalOkHttp;
 import okhttp3.ResponseBody;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Map;
-
 
 public class JsonContentFetcher implements ContentFetcher {
 
@@ -43,10 +42,11 @@ public class JsonContentFetcher implements ContentFetcher {
 
         DrupalContent drupalContent = getDrupalContent(url);
 
-        emitDrupalCandidates(drupalContent,fetchContext,lastJobRunDateTime);
+        emitDrupalCandidates(drupalContent, fetchContext, lastJobRunDateTime);
 
+        //Emit document
         drupalContent.getEntries().forEach((id, entry) -> {
-            fetchContext.newDocument(input.getId())
+                    fetchContext.newDocument(input.getId())
                             .fields(f -> {
                                 f.setString("content_s", (String) metaData.get("content"));
                                 f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
@@ -75,6 +75,7 @@ public class JsonContentFetcher implements ContentFetcher {
         return new DrupalContent(builder.build());
 
     }
+
     private void emitDrupalCandidates(DrupalContent feed, FetchContext fetchContext, long lastJobRunDateTime) {
         Map<String, DrupalContentEntry> entryMap = feed.getEntries();
         entryMap.forEach((id, entry) -> {

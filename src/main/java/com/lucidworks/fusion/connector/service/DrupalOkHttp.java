@@ -1,4 +1,4 @@
-package com.lucidworks.fusion.connector.service.config;
+package com.lucidworks.fusion.connector.service;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -11,7 +11,8 @@ public class DrupalOkHttp {
 
     private final OkHttpClient okHttpClient = new OkHttpClient();
 
-    public DrupalOkHttp() {}
+    public DrupalOkHttp() {
+    }
 
     public ResponseBody getDrupalContent(String url) {
         Request getRequest = new Request.Builder()
