@@ -5,21 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class ContentEntry {
-
-    private String id;
-    private String title;
+public class DrupalContentEntry {
+    private String url;
+    private String content;
     private long lastUpdated;
 
     @JsonCreator
-    public ContentEntry(
-            @JsonProperty("id") String id,
-            @JsonProperty("title") String title,
+    public DrupalContentEntry(
+            @JsonProperty("url") String url,
+            @JsonProperty("content") String content,
             @JsonProperty("lastUpdated") long lastUpdated
     ) {
-        this.id = id;
-        this.title = title;
+        this.url = url;
+        this.content = content;
         this.lastUpdated = lastUpdated;
     }
-
 }
