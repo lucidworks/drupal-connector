@@ -25,7 +25,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
     /**
      * Connector specific settings
      */
-    interface Properties extends ConnectorPluginProperties, GenerateConfig {
+    interface Properties extends ConnectorPluginProperties {
 
         @Property(
                 title = "Content URL",
