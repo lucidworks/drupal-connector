@@ -3,6 +3,7 @@ package com.lucidworks.fusion.connector.fetcher;
 import com.google.common.collect.ImmutableMap;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.content.*;
+import com.lucidworks.fusion.connector.plugin.api.config.ConnectorConfig;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
@@ -20,12 +21,15 @@ public class JsonContentFetcher implements ContentFetcher {
     private final static String LAST_JOB_RUN_DATE_TIME = "lastJobRunDateTime";
     private final static String ENTRY_LAST_UPDATED = "lastUpdatedEntry";
 
+    private final ContentConfig connectorConfig;
     private final DrupalOkHttp drupalOkHttp;
 
     @Inject
     public JsonContentFetcher(
+            ContentConfig connectorConfig,
             DrupalOkHttp drupalOkHttp
     ) {
+        this.connectorConfig = connectorConfig;
         this.drupalOkHttp = drupalOkHttp;
     }
 
@@ -35,7 +39,9 @@ public class JsonContentFetcher implements ContentFetcher {
         Map<String, Object> metaData = input.getMetadata();
         long lastJobRunDateTime = 0;
 
-        DrupalContent drupalContent = getDrupalContent();
+        String url = connectorConfig.properties().getUrl();
+
+        DrupalContent drupalContent = getDrupalContent(url);
 
         emitDrupalCandidates(drupalContent,fetchContext,lastJobRunDateTime);
 
@@ -53,10 +59,10 @@ public class JsonContentFetcher implements ContentFetcher {
         return fetchContext.newResult();
     }
 
-    private DrupalContent getDrupalContent() {
+    private DrupalContent getDrupalContent(String customUrl) {
         ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
 
-        String url = "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/jsonapi";
+        String url = customUrl.isEmpty() ? "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/jsonapi" : customUrl;
         ResponseBody responseBody = drupalOkHttp.getDrupalContent(url);
 
         try {
