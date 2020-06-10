@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter
 @ToString
-public class Attributes {
+public class Attributes implements Serializable {
 
     @JsonProperty("drupal_internal__nid")
     private Integer drupalInternalTid;

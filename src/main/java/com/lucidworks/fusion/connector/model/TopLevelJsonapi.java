@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.Map;
 
 @Getter
 @Setter
 @ToString
 @Type("topLevel")
-public class TopLevelJsonapi {
+public class TopLevelJsonapi implements Serializable {
     private Jsonapi jsonapi;
     private Data[] data;
     private Map<String, LinkHref> Links;

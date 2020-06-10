@@ -5,18 +5,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter
 @ToString
-public class Relationships {
+public class Relationships implements Serializable {
 
-    private Map<String, TopLevelJsonapi> fields = new HashMap<>();
+    private Map<String, Object> fields = new HashMap<>();
 
     @JsonAnySetter
-    public void setFields(String key, TopLevelJsonapi value) {
+    public void setFields(String key, Object value) {
         fields.put(key, value);
     }
 }

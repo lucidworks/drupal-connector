@@ -7,7 +7,7 @@ import com.lucidworks.fusion.connector.service.DrupalOkHttp;
 public class Runner {
 
     public static void main(String[] args) {
-        String url = "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/jsonapi";
+        String url = "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/fusion";
 
         DrupalOkHttp drupalOkHttp = new DrupalOkHttp();
         ObjectMapper mapper = new ObjectMapper();
