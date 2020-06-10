@@ -7,7 +7,7 @@ import com.lucidworks.fusion.schema.SchemaAnnotations.RootSchema;
 import com.lucidworks.fusion.schema.SchemaAnnotations.StringSchema;
 
 @RootSchema(
-        title = "Drupal 8 Connector",
+        title = "Drupal 8 - Java Connector",
         description = "A Drupal 8 connector",
         category = "Drupal8"
 )
@@ -28,7 +28,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
     interface Properties extends ConnectorPluginProperties {
 
         @Property(
-                title = "Content URL",
+                title = "Drupal URL",
                 description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')"
         )
         @StringSchema

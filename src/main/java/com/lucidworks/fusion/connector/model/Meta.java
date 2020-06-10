@@ -1,15 +1,16 @@
 package com.lucidworks.fusion.connector.model;
 
-import com.github.jasminb.jsonapi.Links;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Map;
 
 @Getter
 @Setter
+@ToString
 @Type("meta")
 public class Meta {
-    @com.github.jasminb.jsonapi.annotations.Links
-    private Links links;
-    //omitted - String detail, Links
+    private Map<String, LinkHref> Links;
 }

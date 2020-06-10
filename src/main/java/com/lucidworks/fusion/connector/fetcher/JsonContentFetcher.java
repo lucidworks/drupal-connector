@@ -1,17 +1,14 @@
 package com.lucidworks.fusion.connector.fetcher;
 
-import com.google.common.collect.ImmutableMap;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.content.DrupalContent;
 import com.lucidworks.fusion.connector.content.DrupalContentEntry;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
-import com.lucidworks.fusion.connector.service.DrupalOkHttp;
-import okhttp3.ResponseBody;
+import com.lucidworks.fusion.connector.service.ContentService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
@@ -21,15 +18,15 @@ public class JsonContentFetcher implements ContentFetcher {
     private final static String ENTRY_LAST_UPDATED = "lastUpdatedEntry";
 
     private final ContentConfig connectorConfig;
-    private final DrupalOkHttp drupalOkHttp;
+    private ContentService contentService;
 
     @Inject
     public JsonContentFetcher(
             ContentConfig connectorConfig,
-            DrupalOkHttp drupalOkHttp
+            ContentService contentService
     ) {
         this.connectorConfig = connectorConfig;
-        this.drupalOkHttp = drupalOkHttp;
+        this.contentService = contentService;
     }
 
     @Override
@@ -40,7 +37,7 @@ public class JsonContentFetcher implements ContentFetcher {
 
         String url = connectorConfig.properties().getUrl();
 
-        DrupalContent drupalContent = getDrupalContent(url);
+        DrupalContent drupalContent = contentService.getDrupalContent(url);
 
         emitDrupalCandidates(drupalContent, fetchContext, lastJobRunDateTime);
 
@@ -57,23 +54,6 @@ public class JsonContentFetcher implements ContentFetcher {
                 }
         );
         return fetchContext.newResult();
-    }
-
-    private DrupalContent getDrupalContent(String customUrl) {
-        ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
-
-        String url = customUrl.isEmpty() ? "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/jsonapi" : customUrl;
-        ResponseBody responseBody = drupalOkHttp.getDrupalContent(url);
-
-        try {
-            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(url, responseBody.string(), ZonedDateTime.now().toEpochSecond());
-            builder.put(url, drupalContentEntry);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return new DrupalContent(builder.build());
-
     }
 
     private void emitDrupalCandidates(DrupalContent feed, FetchContext fetchContext, long lastJobRunDateTime) {
