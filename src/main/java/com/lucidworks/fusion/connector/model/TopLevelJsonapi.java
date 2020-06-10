@@ -16,15 +16,7 @@ public class TopLevelJsonapi implements Serializable {
     private Jsonapi jsonapi;
     private Data[] data;
     private Map<String, LinkHref> Links;
-
     private Meta meta;
     private Errors errors;
     private Included included;
-
-//    @com.github.jasminb.jsonapi.annotations.Meta
-//    private Meta meta;
-//    @com.github.jasminb.jsonapi.annotations.Links
-//    private Links links;
-
-
 }

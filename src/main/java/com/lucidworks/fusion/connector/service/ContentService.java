@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ContentService {
 
@@ -54,12 +53,10 @@ public class ContentService {
         jsonapiMap.put(url, topLevelJsonapi);
 
         List<LinkHref> list = new ArrayList<>(topLevelJsonapi.getLinks().values());
-        list = list.stream().limit(1).collect(Collectors.toList());
-        //System.out.println(list.toString());
 
-        jsonapiMap = extractLinks(list, jsonapiMap);
+        jsonapiMap = mapDrupalContentToObject(list, jsonapiMap);
 
-        //apply recursion
+        //TODO add recursion for all links
 
         //return
     }
@@ -79,13 +76,13 @@ public class ContentService {
         return topLevelJsonapi;
     }
 
-    private Map<String, TopLevelJsonapi> extractLinks(List<LinkHref> list, Map<String, TopLevelJsonapi> jsonapiMap) {
+    private Map<String, TopLevelJsonapi> mapDrupalContentToObject(List<LinkHref> list, Map<String, TopLevelJsonapi> jsonapiMap) {
 
         list.stream().forEach(linkHref -> {
             ResponseBody body = drupalOkHttp.getDrupalContent(linkHref.getHref());
             try {
-                DrupalContentEntry drupal = new DrupalContentEntry(linkHref.getHref(), body.string(), ZonedDateTime.now().toEpochSecond());
-                TopLevelJsonapi topLevelJsonapi = mapper.readValue(drupal.getContent(), TopLevelJsonapi.class);
+                DrupalContentEntry drupalContentEntry = new DrupalContentEntry(linkHref.getHref(), body.string(), ZonedDateTime.now().toEpochSecond());
+                TopLevelJsonapi topLevelJsonapi = mapper.readValue(drupalContentEntry.getContent(), TopLevelJsonapi.class);
                 jsonapiMap.put(linkHref.getHref(), topLevelJsonapi);
             } catch (IOException e) {
                 e.printStackTrace();

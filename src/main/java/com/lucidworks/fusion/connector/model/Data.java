@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -20,5 +19,5 @@ public class Data implements Serializable {
     private String type;
     private Map<String, LinkHref> Links;
     private Attributes attributes;
-    private List<Relationships> relationships;
+    private Relationships relationships;
 }
