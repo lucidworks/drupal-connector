@@ -17,6 +17,7 @@ public class DrupalOkHttp {
     public ResponseBody getDrupalContent(String url) {
         Request getRequest = new Request.Builder()
                 .url(url)
+                .addHeader("Content-Type", "application/vnd.api+json")
                 .build();
 
         try {

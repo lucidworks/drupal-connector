@@ -1,4 +1,6 @@
 package com.lucidworks.fusion.connector.model;
 
-public class Included extends Data {
+import java.io.Serializable;
+
+public class Included extends Data implements Serializable {
 }
