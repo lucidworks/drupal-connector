@@ -1,8 +1,12 @@
 package com.lucidworks.fusion.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import okhttp3.ResponseBody;
+
+import java.util.Map;
 
 public class Runner {
 
@@ -14,6 +18,14 @@ public class Runner {
         ContentService contentService = new ContentService(drupalOkHttp, mapper);
 
         contentService.extractJsonFromDrupal(url);
+
+        ConnectorService connectorService = new ConnectorService(url);
+
+        Map<String, ResponseBody> response = connectorService.prepareDataToUpload();
+
+        response.forEach((currentUrl, content) -> {
+            System.out.println(currentUrl);
+        });
         //System.out.println(topLevelJsonapi.toString());
     }
 }
