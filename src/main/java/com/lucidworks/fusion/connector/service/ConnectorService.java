@@ -1,27 +1,35 @@
 package com.lucidworks.fusion.connector.service;
 
-import okhttp3.ResponseBody;
+import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 
 import java.util.Map;
 
+/**
+ * Connector Service resolve the data for Fusion Fetcher
+ */
 public class ConnectorService {
 
-    private final DrupalContentFetcher drupalContentFetcher;
+    private final DrupalContentCrawler drupalContentCrawler;
     private boolean isProcessStarted = false;
 
-    public ConnectorService(String drupalUrl) {
-        this.drupalContentFetcher = new DrupalContentFetcher(drupalUrl);
+    public ConnectorService(String drupalUrl, DrupalLoginResponse drupalLoginResponse) {
+        this.drupalContentCrawler = new DrupalContentCrawler(drupalUrl, drupalLoginResponse);
     }
 
-    public Map<String, ResponseBody> prepareDataToUpload() {
-        Map<String, ResponseBody> dataToUpload;
+    /**
+     * Prepare data to upload will wait until the crawling process is done and then return the result of it
+     *
+     * @return dataToUpload
+     */
+    public Map<String, String> prepareDataToUpload() {
+        Map<String, String> dataToUpload;
 
-        if (!isProcessStarted || !drupalContentFetcher.isProcessFinished()) {
-            drupalContentFetcher.startFetch();
+        if (!isProcessStarted || !drupalContentCrawler.isProcessFinished()) {
+            drupalContentCrawler.startCrawling();
             isProcessStarted = true;
         }
 
-        while(!drupalContentFetcher.isProcessFinished()) {
+        while (!drupalContentCrawler.isProcessFinished()) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -29,7 +37,7 @@ public class ConnectorService {
             }
         }
 
-        dataToUpload = drupalContentFetcher.getVisitedUrls();
+        dataToUpload = drupalContentCrawler.getVisitedUrls();
 
         return dataToUpload;
     }
