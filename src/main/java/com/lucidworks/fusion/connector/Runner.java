@@ -10,18 +10,14 @@ public class Runner {
 
     public static void main(String[] args) {
         String baseUrl = "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/";
-        String url = baseUrl + "fusion";
-
         DrupalOkHttp drupalOkHttp = new DrupalOkHttp();
         ObjectMapper mapper = new ObjectMapper();
         ContentService contentService = new ContentService(drupalOkHttp, mapper);
 
         DrupalLoginResponse drupalLoginResponse = contentService.login(baseUrl, "authenticated", "authenticated");
 
-        contentService.extractJsonFromDrupal(baseUrl, drupalLoginResponse);
-
         DrupalContent drupalContent = contentService.getDrupalContent(baseUrl, drupalLoginResponse);
 
-        System.out.println(drupalContent);
+        System.out.println(drupalContent.getEntries());
     }
 }

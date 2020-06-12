@@ -14,8 +14,8 @@ public class DrupalLoginRequest {
     public String getJson() {
         String jsonString = new StringBuilder()
                 .append("{")
-                .append("\"name\":\""+name+"\",")
-                .append("\"pass\":\""+pass+"\"")
+                .append("\"name\":\"" + name + "\",")
+                .append("\"pass\":\"" + pass + "\"")
                 .append("}").toString();
         return jsonString;
     }
