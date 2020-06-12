@@ -29,10 +29,30 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Drupal URL",
-                description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')"
+                description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')",
+                required = true,
+                order = 1
         )
         @StringSchema
         String getUrl();
+
+        @Property(
+                title = "Username for login",
+                description = "Username to login into drupal to be able to fetch content from it",
+                required = true,
+                order = 2
+        )
+        @StringSchema
+        String getUsername();
+
+        @Property(
+                title = "Password for login",
+                description = "Password to login into drupal to be able to fetch content from it",
+                required = true,
+                order = 3
+        )
+        @StringSchema
+        String getPassword();
 
     }
 
