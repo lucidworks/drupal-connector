@@ -14,10 +14,10 @@ import java.util.Map;
 @ToString
 public class Relationships implements Serializable {
 
-    private Map<String, Object> fields = new HashMap<>();
+    private Map<String, RelationshipFields> fields = new HashMap<>();
 
     @JsonAnySetter
-    public void setFields(String key, Object value) {
+    public void setFields(String key, RelationshipFields value) {
         fields.put(key, value);
     }
 }
