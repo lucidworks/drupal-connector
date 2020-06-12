@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.lucidworks.fusion.connector.content.DrupalContent;
 import com.lucidworks.fusion.connector.content.DrupalContentEntry;
+import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
+import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.LinkHref;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import okhttp3.ResponseBody;
@@ -29,15 +31,14 @@ public class ContentService {
         this.mapper = objectMapper;
     }
 
-    public DrupalContent getDrupalContent(String customUrl) {
+    public DrupalContent getDrupalContent(String customUrl, DrupalLoginResponse drupalLoginResponse) {
         ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
 
-        String url = customUrl.isEmpty() ? URL : customUrl;
-        ResponseBody responseBody = drupalOkHttp.getDrupalContent(url);
+        ResponseBody responseBody = drupalOkHttp.getDrupalContent(customUrl, drupalLoginResponse);
 
         try {
-            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(url, responseBody.string(), ZonedDateTime.now().toEpochSecond());
-            builder.put(url, drupalContentEntry);
+            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(customUrl, responseBody.string(), ZonedDateTime.now().toEpochSecond());
+            builder.put(customUrl, drupalContentEntry);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,23 +47,23 @@ public class ContentService {
 
     }
 
-    public void extractJsonFromDrupal(String url) {
+    public void extractJsonFromDrupal(String url, DrupalLoginResponse drupalLoginResponse) {
 
         Map<String, TopLevelJsonapi> jsonapiMap = new HashMap<>();
-        TopLevelJsonapi topLevelJsonapi = getTopLevelJsonContent(url);
+        TopLevelJsonapi topLevelJsonapi = getTopLevelJsonContent(url + "en/fusion", drupalLoginResponse);
         jsonapiMap.put(url, topLevelJsonapi);
 
         List<LinkHref> list = new ArrayList<>(topLevelJsonapi.getLinks().values());
 
-        jsonapiMap = mapDrupalContentToObject(list, jsonapiMap);
+        jsonapiMap = mapDrupalContentToObject(list, jsonapiMap, drupalLoginResponse);
 
         //TODO add recursion for all links
 
         //return
     }
 
-    private TopLevelJsonapi getTopLevelJsonContent(String url) {
-        ResponseBody responseBody = drupalOkHttp.getDrupalContent(url);
+    private TopLevelJsonapi getTopLevelJsonContent(String url, DrupalLoginResponse drupalLoginResponse) {
+        ResponseBody responseBody = drupalOkHttp.getDrupalContent(url, drupalLoginResponse);
         TopLevelJsonapi topLevelJsonapi = new TopLevelJsonapi();
 
         try {
@@ -76,10 +77,10 @@ public class ContentService {
         return topLevelJsonapi;
     }
 
-    private Map<String, TopLevelJsonapi> mapDrupalContentToObject(List<LinkHref> list, Map<String, TopLevelJsonapi> jsonapiMap) {
+    private Map<String, TopLevelJsonapi> mapDrupalContentToObject(List<LinkHref> list, Map<String, TopLevelJsonapi> jsonapiMap, DrupalLoginResponse drupalLoginResponse) {
 
-        list.stream().forEach(linkHref -> {
-            ResponseBody body = drupalOkHttp.getDrupalContent(linkHref.getHref());
+        for (LinkHref linkHref : list) {
+            ResponseBody body = drupalOkHttp.getDrupalContent(linkHref.getHref(), drupalLoginResponse);
             try {
                 DrupalContentEntry drupalContentEntry = new DrupalContentEntry(linkHref.getHref(), body.string(), ZonedDateTime.now().toEpochSecond());
                 TopLevelJsonapi topLevelJsonapi = mapper.readValue(drupalContentEntry.getContent(), TopLevelJsonapi.class);
@@ -87,10 +88,24 @@ public class ContentService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }
 
         return jsonapiMap;
 
     }
 
+    public DrupalLoginResponse login(String url, String username, String password) {
+        DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
+
+        ResponseBody loginResponse = drupalOkHttp.login(url, drupalLoginRequest);
+
+        DrupalLoginResponse drupalLoginResponse = null;
+        try {
+            drupalLoginResponse = mapper.readValue(loginResponse.string(), DrupalLoginResponse.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return drupalLoginResponse;
+    }
 }

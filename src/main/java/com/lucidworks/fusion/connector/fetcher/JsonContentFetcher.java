@@ -3,6 +3,7 @@ package com.lucidworks.fusion.connector.fetcher;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.content.DrupalContent;
 import com.lucidworks.fusion.connector.content.DrupalContentEntry;
+import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
@@ -36,8 +37,12 @@ public class JsonContentFetcher implements ContentFetcher {
         long lastJobRunDateTime = 0;
 
         String url = connectorConfig.properties().getUrl();
+        String username = connectorConfig.properties().getUsername();
+        String password = connectorConfig.properties().getPassword();
 
-        DrupalContent drupalContent = contentService.getDrupalContent(url);
+        DrupalLoginResponse drupalLoginResponse = contentService.login(url, username, password);
+
+        DrupalContent drupalContent = contentService.getDrupalContent(url, drupalLoginResponse);
 
         emitDrupalCandidates(drupalContent, fetchContext, lastJobRunDateTime);
 
