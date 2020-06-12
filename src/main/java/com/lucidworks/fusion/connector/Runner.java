@@ -1,10 +1,12 @@
 package com.lucidworks.fusion.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lucidworks.fusion.connector.content.DrupalContent;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+
+import java.util.Map;
 
 public class Runner {
 
@@ -16,8 +18,13 @@ public class Runner {
 
         DrupalLoginResponse drupalLoginResponse = contentService.login(baseUrl, "authenticated", "authenticated");
 
-        DrupalContent drupalContent = contentService.getDrupalContent(baseUrl, drupalLoginResponse);
+        ConnectorService connectorService = new ConnectorService(baseUrl + "en/fusion", drupalLoginResponse);
 
-        System.out.println(drupalContent.getEntries());
+        Map<String, String> response = connectorService.prepareDataToUpload();
+
+        response.forEach((currentUrl, content) -> {
+            System.out.println(currentUrl);
+            System.out.println(content);
+        });
     }
 }

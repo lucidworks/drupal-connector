@@ -8,14 +8,12 @@ import java.io.IOException;
 
 public class DrupalOkHttp {
 
-    private final OkHttpClient okHttpClient = new OkHttpClient();
-
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
+    private final OkHttpClient okHttpClient = new OkHttpClient();
 
     public DrupalOkHttp() {
     }
-
 
     public ResponseBody getDrupalContent(String url, DrupalLoginResponse drupalLoginResponse) {
         Request getRequest = new Request.Builder()
