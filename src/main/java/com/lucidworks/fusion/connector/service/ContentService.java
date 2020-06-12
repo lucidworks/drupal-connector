@@ -5,7 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import com.lucidworks.fusion.connector.content.DrupalContent;
 import com.lucidworks.fusion.connector.content.DrupalContentEntry;
 import com.lucidworks.fusion.connector.model.Data;
+import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
+import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.RelationshipFields;
+import com.lucidworks.fusion.connector.model.TopLevelJsonApiData;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import okhttp3.ResponseBody;
 
@@ -16,11 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Content Service fetch the content from Drupal
+ */
 public class ContentService {
 
-    private final String URL = "http://s5ece25faf2e8c4kc8tnpvvh.devcloud.acquia-sites.com/fusion";
     private final String LINK_SELF = "self";
 
     private final DrupalOkHttp drupalOkHttp;
@@ -32,7 +36,12 @@ public class ContentService {
         this.mapper = objectMapper;
     }
 
-    public DrupalContent getDrupalContent(String customUrl) {
+    /**
+     * @param customUrl           The url where the content is taken
+     * @param drupalLoginResponse The current user with JWT token
+     * @return
+     */
+    public DrupalContent getDrupalContent(String customUrl, DrupalLoginResponse drupalLoginResponse) {
         ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
 
         ResponseBody responseBody = drupalOkHttp.getDrupalContent(customUrl, drupalLoginResponse);
@@ -48,52 +57,29 @@ public class ContentService {
 
     }
 
-    public void extractJsonFromDrupal(String url) {
-
-        Map<String, TopLevelJsonapi> jsonapiMap = new HashMap<>();
-        TopLevelJsonapi topLevelJsonapi = getTopLevelJsonContent(url + "en/fusion", drupalLoginResponse);
-        jsonapiMap.put(url, topLevelJsonapi);
-
-        List<LinkHref> list = new ArrayList<>(topLevelJsonapi.getLinks().values());
-
-        jsonapiMap = mapDrupalContentToObject(list, jsonapiMap, drupalLoginResponse);
-
-        //TODO add recursion for all links
-
-        //return
-    }
-
-    private TopLevelJsonapi getTopLevelJsonContent(String url) {
-        ResponseBody responseBody = drupalOkHttp.getDrupalContent(url);
-        TopLevelJsonapi topLevelJsonapi = new TopLevelJsonapi();
-
-        try {
-            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(url, responseBody.string(), ZonedDateTime.now().toEpochSecond());
-            topLevelJsonapi = mapper.readValue(drupalContentEntry.getContent(), TopLevelJsonapi.class);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return topLevelJsonapi;
-    }
-
-    private Map<String, TopLevelJsonapi> mapDrupalContentToObject(List<LinkHref> list, Map<String, TopLevelJsonapi> jsonapiMap, DrupalLoginResponse drupalLoginResponse) {
-    private List<String> collectLinksFromDrupalContent(TopLevelJsonapi topLevelJsonapi) {
+    /**
+     * Collect all the links inside a page
+     *
+     * @param content The entire content from a web page
+     * @return List with all the links found
+     */
+    public List<String> collectLinksFromDrupalContent(String content) {
 
         List<String> links = new ArrayList<>();
+        TopLevelJsonapi topLevelJsonapi = null;
 
-        for (LinkHref linkHref : list) {
-            ResponseBody body = drupalOkHttp.getDrupalContent(linkHref.getHref(), drupalLoginResponse);
+        try {
+            topLevelJsonapi = mapper.readValue(content, TopLevelJsonapi.class);
+
+        } catch (IOException e) {
             try {
-                DrupalContentEntry drupalContentEntry = new DrupalContentEntry(linkHref.getHref(), body.string(), ZonedDateTime.now().toEpochSecond());
-                TopLevelJsonapi topLevelJsonapi = mapper.readValue(drupalContentEntry.getContent(), TopLevelJsonapi.class);
-                jsonapiMap.put(linkHref.getHref(), topLevelJsonapi);
-            } catch (IOException e) {
-                e.printStackTrace();
+                topLevelJsonapi = mapper.readValue(content, TopLevelJsonApiData.class);
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
-        if (topLevelJsonapi.getData() != null || topLevelJsonapi.getData().length > 0) {
+
+        if (topLevelJsonapi.getData() != null) {
             List<Data> dataList = Arrays.asList(topLevelJsonapi.getData());
 
             dataList.stream()
@@ -122,6 +108,14 @@ public class ContentService {
         return links;
     }
 
+    /**
+     * Request to login the user in order to have the JWT token
+     *
+     * @param url
+     * @param username
+     * @param password
+     * @return
+     */
     public DrupalLoginResponse login(String url, String username, String password) {
         DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
 
@@ -136,4 +130,5 @@ public class ContentService {
 
         return drupalLoginResponse;
     }
+
 }

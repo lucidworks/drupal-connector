@@ -13,6 +13,9 @@ import javax.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+/**
+ * Fetch the content from Drupal's pages
+ */
 public class JsonContentFetcher implements ContentFetcher {
 
     private final static String LAST_JOB_RUN_DATE_TIME = "lastJobRunDateTime";
