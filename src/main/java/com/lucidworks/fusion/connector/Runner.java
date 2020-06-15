@@ -18,13 +18,13 @@ public class Runner {
 
         DrupalLoginResponse drupalLoginResponse = contentService.login(baseUrl, "authenticated", "authenticated");
 
-        ConnectorService connectorService = new ConnectorService(baseUrl + "en/fusion/node/page", drupalLoginResponse, contentService);
+        ConnectorService connectorService = new ConnectorService(baseUrl + "en/fusion", drupalLoginResponse, contentService);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
         response.forEach((currentUrl, content) -> {
             System.out.println(currentUrl);
-           // System.out.println(content);
+            System.out.println(content);
         });
     }
 }

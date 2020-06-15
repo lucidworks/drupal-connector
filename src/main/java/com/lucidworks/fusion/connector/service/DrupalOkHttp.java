@@ -24,7 +24,7 @@ public class DrupalOkHttp {
         Request getRequest = new Request.Builder()
                 .url(url)
                 .addHeader("Content-Type", "application/vnd.api+json")
-                .addHeader("Authorization", drupalLoginResponse.getAuthorization())
+                //.addHeader("Authorization", drupalLoginResponse.getAuthorization())
                 .build();
 
         try {

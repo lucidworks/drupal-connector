@@ -43,7 +43,7 @@ public class JsonContentFetcher implements ContentFetcher {
         String username = connectorConfig.properties().getUsername();
         String password = connectorConfig.properties().getPassword();
 
-        DrupalLoginResponse drupalLoginResponse = contentService.login(url, username, password);
+        DrupalLoginResponse drupalLoginResponse = new DrupalLoginResponse(); //contentService.login(url, username, password);
 
         DrupalContent drupalContent = contentService.getDrupalContent(url, drupalLoginResponse);
 
@@ -61,6 +61,7 @@ public class JsonContentFetcher implements ContentFetcher {
                             .emit();
                 }
         );
+
         return fetchContext.newResult();
     }
 

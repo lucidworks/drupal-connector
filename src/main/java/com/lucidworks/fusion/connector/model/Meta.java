@@ -14,5 +14,5 @@ import java.util.Map;
 @Type("meta")
 public class Meta implements Serializable {
     private Map<String, LinkHref> Links;
-    private Omitted omitted;
+    private Object omitted;
 }

@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ContentService {
 
-    private final String LINK_SELF = "self";
+    private final String SELF_LINK = "self";
 
     private final DrupalOkHttp drupalOkHttp;
     private final ObjectMapper mapper;
@@ -89,7 +89,7 @@ public class ContentService {
                         Collection<RelationshipFields> fields = data.getRelationships().getFields().values();
                         fields.forEach(f -> {
                             f.getLinks().forEach((k, v) -> {
-                                if (!k.equals(LINK_SELF)) {
+                                if (!k.equals(SELF_LINK)) {
                                     links.add(v.getHref());
                                 }
                             });
@@ -97,9 +97,9 @@ public class ContentService {
                     });
         }
 
-        if (topLevelJsonapi.getLinks() != null) {
+        if (topLevelJsonapi.getLinks() != null || !topLevelJsonapi.getLinks().isEmpty()) {
             topLevelJsonapi.getLinks().forEach((k, v) -> {
-                if (!k.equals(LINK_SELF)) {
+                if (!k.equals(SELF_LINK)) {
                     links.add(v.getHref());
                 }
             });
