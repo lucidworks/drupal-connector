@@ -3,7 +3,11 @@ package com.lucidworks.fusion.connector.service;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Drupal Content Crawler can create a Map with all links and content from them.
@@ -20,8 +24,9 @@ public class DrupalContentCrawler {
     /**
      * Constructor for Crawler
      *
-     * @param drupalUrl    the url for the first GET request
-     * @param loggedInUser the loggedInUser with JWT token inside
+     * @param drupalUrl      the url for the first GET request
+     * @param loggedInUser   the loggedInUser with JWT token inside
+     * @param contentService the content service class
      */
     public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService) {
         this.drupalOkHttp = new DrupalOkHttp();

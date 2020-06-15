@@ -83,14 +83,14 @@ public class ContentService {
             List<Data> dataList = Arrays.asList(topLevelJsonapi.getData());
 
             dataList.stream()
-                    .filter(d -> d.getRelationships() != null)
+                    .filter(data -> data.getRelationships() != null)
                     //.parallel()
                     .forEach(data -> {
-                        Collection<RelationshipFields> fields = data.getRelationships().getFields().values();
-                        fields.forEach(f -> {
-                            f.getLinks().forEach((k, v) -> {
-                                if (!k.equals(SELF_LINK)) {
-                                    links.add(v.getHref());
+                        Collection<RelationshipFields> relationshipFields = data.getRelationships().getFields().values();
+                        relationshipFields.forEach(fields -> {
+                            fields.getLinks().forEach((linkTag, linkHref) -> {
+                                if (!linkTag.equals(SELF_LINK)) {
+                                    links.add(linkHref.getHref());
                                 }
                             });
                         });
@@ -98,9 +98,9 @@ public class ContentService {
         }
 
         if (topLevelJsonapi.getLinks() != null || !topLevelJsonapi.getLinks().isEmpty()) {
-            topLevelJsonapi.getLinks().forEach((k, v) -> {
-                if (!k.equals(SELF_LINK)) {
-                    links.add(v.getHref());
+            topLevelJsonapi.getLinks().forEach((linkTag, linkHref) -> {
+                if (!linkTag.equals(SELF_LINK)) {
+                    links.add(linkHref.getHref());
                 }
             });
         }
