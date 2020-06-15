@@ -12,8 +12,8 @@ public class ConnectorService {
     private final DrupalContentCrawler drupalContentCrawler;
     private boolean isProcessStarted = false;
 
-    public ConnectorService(String drupalUrl, DrupalLoginResponse drupalLoginResponse) {
-        this.drupalContentCrawler = new DrupalContentCrawler(drupalUrl, drupalLoginResponse);
+    public ConnectorService(String drupalUrl, DrupalLoginResponse drupalLoginResponse, ContentService contentService) {
+        this.drupalContentCrawler = new DrupalContentCrawler(drupalUrl, drupalLoginResponse, contentService);
     }
 
     /**
