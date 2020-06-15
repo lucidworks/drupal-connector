@@ -7,6 +7,7 @@ import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
+import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ public class JsonContentFetcher implements ContentFetcher {
 
     private final ContentConfig connectorConfig;
     private ContentService contentService;
+    private ConnectorService connectorService;
 
     @Inject
     public JsonContentFetcher(
@@ -31,6 +33,21 @@ public class JsonContentFetcher implements ContentFetcher {
     ) {
         this.connectorConfig = connectorConfig;
         this.contentService = contentService;
+        connectorService = new ConnectorService(getDrupalUrl() + "jsonapi", null, contentService);
+    }
+
+    private String getDrupalUrl() {
+        return connectorConfig.properties().getUrl();
+    }
+
+    private DrupalLoginResponse getDrupalLoginResponse() {
+        String username = connectorConfig.properties().getUsername();
+        String password = connectorConfig.properties().getPassword();
+
+        DrupalLoginResponse drupalLoginResponse = contentService.login(getDrupalUrl(), username, password);
+
+        return drupalLoginResponse;
+
     }
 
     @Override
@@ -39,28 +56,43 @@ public class JsonContentFetcher implements ContentFetcher {
         Map<String, Object> metaData = input.getMetadata();
         long lastJobRunDateTime = 0;
 
-        String url = connectorConfig.properties().getUrl();
-        String username = connectorConfig.properties().getUsername();
-        String password = connectorConfig.properties().getPassword();
+//        String url = connectorConfig.properties().getUrl();
+//        String username = connectorConfig.properties().getUsername();
+//        String password = connectorConfig.properties().getPassword();
+//
+//        DrupalLoginResponse drupalLoginResponse = contentService.login(url, username, password);
+//
+//        DrupalContent drupalContent = contentService.getDrupalContent(url, drupalLoginResponse);
+//
+//        emitDrupalCandidates(drupalContent, fetchContext, lastJobRunDateTime);
+//
+//        //Emit document
+//        drupalContent.getEntries().forEach((id, entry) -> {
+//                    fetchContext.newDocument(input.getId())
+//                            .fields(f -> {
+//                                f.setString("content_s", (String) metaData.get("content"));
+//                                f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
+//                                // adding more fields with random values.
+//                                f.merge(drupalContent.getMapWithObject());
+//                            })
+//                            .emit();
+//                }
+//        );
 
-        DrupalLoginResponse drupalLoginResponse = new DrupalLoginResponse(); //contentService.login(url, username, password);
+        Map<String, String> contentMap = connectorService.prepareDataToUpload();
+        contentMap.forEach((id, content) -> {
+            fetchContext.newCandidate(id)
+                    .metadata(m -> {
+                        m.setString("data" + id, content);
+                    }).emit();
 
-        DrupalContent drupalContent = contentService.getDrupalContent(url, drupalLoginResponse);
-
-        emitDrupalCandidates(drupalContent, fetchContext, lastJobRunDateTime);
-
-        //Emit document
-        drupalContent.getEntries().forEach((id, entry) -> {
-                    fetchContext.newDocument(input.getId())
-                            .fields(f -> {
-                                f.setString("content_s", (String) metaData.get("content"));
-                                f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
-                                // adding more fields with random values.
-                                f.merge(drupalContent.getMapWithObject());
-                            })
-                            .emit();
-                }
-        );
+            fetchContext.newDocument(input.getId())
+                    .fields(f -> {
+                        f.setString("data_s", (String) metaData.get("data" + id));
+                        f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
+                    })
+                    .emit();
+        });
 
         return fetchContext.newResult();
     }

@@ -20,11 +20,11 @@ public class DrupalOkHttp {
     public DrupalOkHttp() {
     }
 
-    public ResponseBody getDrupalContent(String url, DrupalLoginResponse drupalLoginResponse) {
+    public String getDrupalContent(String url, DrupalLoginResponse drupalLoginResponse) {
         Request getRequest = new Request.Builder()
                 .url(url)
                 .addHeader("Content-Type", "application/vnd.api+json")
-                //.addHeader("Authorization", drupalLoginResponse.getAuthorization())
+                .addHeader("Authorization", "Bearer YAWrsYFxfCYqwyQi9yFgh_HtB-yy921SpCBUqailhuA")
                 .build();
 
         try {
@@ -34,7 +34,10 @@ public class DrupalOkHttp {
                 return null;
             }
 
-            return response.body();
+            String responseBody = response.body().string();
+            response.body().close();
+
+            return responseBody;
 
         } catch (IOException exception) {
             return null;

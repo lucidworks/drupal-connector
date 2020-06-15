@@ -41,21 +41,21 @@ public class ContentService {
      * @param drupalLoginResponse The current user with JWT token
      * @return
      */
-    public DrupalContent getDrupalContent(String customUrl, DrupalLoginResponse drupalLoginResponse) {
-        ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
-
-        ResponseBody responseBody = drupalOkHttp.getDrupalContent(customUrl, drupalLoginResponse);
-
-        try {
-            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(customUrl, responseBody.string(), ZonedDateTime.now().toEpochSecond());
-            builder.put(customUrl, drupalContentEntry);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return new DrupalContent(builder.build());
-
-    }
+//    public DrupalContent getDrupalContent(String customUrl, DrupalLoginResponse drupalLoginResponse) {
+//        ImmutableMap.Builder<String, DrupalContentEntry> builder = ImmutableMap.builder();
+//
+//        ResponseBody responseBody = drupalOkHttp.getDrupalContent(customUrl, drupalLoginResponse);
+//
+//        try {
+//            DrupalContentEntry drupalContentEntry = new DrupalContentEntry(customUrl, responseBody.string(), ZonedDateTime.now().toEpochSecond());
+//            builder.put(customUrl, drupalContentEntry);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return new DrupalContent(builder.build());
+//
+//    }
 
     /**
      * Collect all the links inside a page

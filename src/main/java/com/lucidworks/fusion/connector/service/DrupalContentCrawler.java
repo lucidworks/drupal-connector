@@ -1,6 +1,7 @@
 package com.lucidworks.fusion.connector.service;
 
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,13 +46,13 @@ public class DrupalContentCrawler {
     public void startCrawling() {
         Map<String, String> currentStepContent = new HashMap<>();
         List<String> urlsVisitedInCurrentStep = new ArrayList<>();
+        int i = 0;
         do {
             drupalUrls.stream().forEach(url -> {
-                try {
-                    currentStepContent.put(url, drupalOkHttp.getDrupalContent(url, loggedInUser).string());
+                String responseBody = drupalOkHttp.getDrupalContent(url, loggedInUser);
+                if (responseBody != null) {
+                    currentStepContent.put(url, responseBody);
                     urlsVisitedInCurrentStep.add(url);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             });
 
@@ -61,6 +62,12 @@ public class DrupalContentCrawler {
                 drupalUrls.addAll(contentService.collectLinksFromDrupalContent(content));
                 visitedUrls.put(url, content);
             });
+
+            // System.out.println("I= " + i++);
+
+            if (i++ == 4) {
+                drupalUrls.clear();
+            }
 
             urlsVisitedInCurrentStep.clear();
             currentStepContent.clear();
