@@ -8,7 +8,7 @@ Drupal8 Connector fetches the entries of a json file.
 
 1. Clone the repo:
 ```
-git clone https://github.com/lolaent/fusion-connector-java.git
+git clone https://github.com/lucidworks/drupal-connector
 cd drupal8
 ./gradlew clean build assemblePlugin
 ```
