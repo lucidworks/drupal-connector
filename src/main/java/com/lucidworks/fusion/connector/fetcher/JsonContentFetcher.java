@@ -36,7 +36,7 @@ public class JsonContentFetcher implements ContentFetcher {
     ) {
         this.connectorConfig = connectorConfig;
         this.contentService = contentService;
-        connectorService = new ConnectorService(getDrupalUrl() + "fusion", null, contentService);
+        connectorService = new ConnectorService(getDrupalUrl(), null, contentService);
     }
 
     private String getDrupalUrl() {

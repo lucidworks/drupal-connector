@@ -1,6 +1,6 @@
 package com.lucidworks.fusion.connector.service;
 
-import com.lucidworks.fusion.connector.exception.ServiceException;
+import com.lucidworks.fusion.connector.exception.RequestException;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class DrupalOkHttp {
         Request getRequest = new Request.Builder()
                 .url(url)
                 .addHeader("Content-Type", "application/vnd.api+json")
-                //.addHeader("Authorization", "Bearer YAWrsYFxfCYqwyQi9yFgh_HtB-yy921SpCBUqailhuA")
+                //.addHeader("Authorization", drupalLoginResponse.getAuthorization())
                 .build();
 
         try {
@@ -51,7 +51,7 @@ public class DrupalOkHttp {
             return responseBody;
 
         } catch (IOException exception) {
-            throw new ServiceException("There was an error on getting the content from Drupal.", exception);
+            throw new RequestException("There was an error on getting the content from Drupal.", exception);
         }
     }
 
@@ -75,10 +75,7 @@ public class DrupalOkHttp {
 
             return response.body();
         } catch (IOException exception) {
-            //TODO throw new ServiceException("There was an error when trying to login the user!", exception);
-            log.error("There was an error trying to call the login request.");
+            throw new RequestException("There was an error when trying to login the user: " + drupalLoginRequest.getName(), exception);
         }
-
-        return null;
     }
 }
