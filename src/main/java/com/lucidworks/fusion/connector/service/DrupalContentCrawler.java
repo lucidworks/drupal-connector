@@ -1,9 +1,9 @@
 package com.lucidworks.fusion.connector.service;
 
+import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
-import okhttp3.ResponseBody;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import java.util.Map;
 /**
  * Drupal Content Crawler can create a Map with all links and content from them.
  */
+@Slf4j
 public class DrupalContentCrawler {
 
     private boolean processFinished = false;
@@ -44,37 +45,39 @@ public class DrupalContentCrawler {
      * Until no more drupalUrls are found
      */
     public void startCrawling() {
+        log.info("Enter startCrawling method.");
+
         Map<String, String> currentStepContent = new HashMap<>();
         List<String> urlsVisitedInCurrentStep = new ArrayList<>();
-        int i = 0;
-        do {
-            drupalUrls.stream().forEach(url -> {
-                String responseBody = drupalOkHttp.getDrupalContent(url, loggedInUser);
-                if (responseBody != null) {
-                    currentStepContent.put(url, responseBody);
-                    urlsVisitedInCurrentStep.add(url);
-                }
-            });
+        try {
+            do {
+                drupalUrls.stream().forEach(url -> {
+                    String responseBody = drupalOkHttp.getDrupalContent(url, loggedInUser);
+                    if (responseBody != null) {
+                        currentStepContent.put(url, responseBody);
+                        urlsVisitedInCurrentStep.add(url);
+                    }
+                });
 
-            drupalUrls.removeAll(urlsVisitedInCurrentStep);
+                drupalUrls.removeAll(urlsVisitedInCurrentStep);
 
-            currentStepContent.forEach((url, content) -> {
-                drupalUrls.addAll(contentService.collectLinksFromDrupalContent(content));
-                visitedUrls.put(url, content);
-            });
+                currentStepContent.forEach((url, content) -> {
+                    drupalUrls.addAll(contentService.collectLinksFromDrupalContent(url, content));
+                    visitedUrls.put(url, content);
+                });
 
-            // System.out.println("I= " + i++);
+                urlsVisitedInCurrentStep.clear();
+                currentStepContent.clear();
 
-            if (i++ == 4) {
-                drupalUrls.clear();
-            }
+            } while (!drupalUrls.isEmpty());
 
-            urlsVisitedInCurrentStep.clear();
-            currentStepContent.clear();
-
-        } while (!drupalUrls.isEmpty());
+        } catch (ServiceException e) {
+            throw new ServiceException("There was an error in the crawling method...", e);
+        }
 
         processFinished = true;
+
+        log.info("Crawling process is finished.");
     }
 
     /**
