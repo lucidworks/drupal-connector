@@ -66,6 +66,8 @@ public class DrupalContentCrawler {
                     visitedUrls.put(url, content);
                 });
 
+                drupalUrls.removeIf(drupalUrl -> visitedUrls.containsKey(drupalUrl));
+
                 urlsVisitedInCurrentStep.clear();
                 currentStepContent.clear();
 
