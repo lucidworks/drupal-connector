@@ -29,7 +29,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Drupal URL",
-                description = "Content URL location.",
+                description = "Page URL.",
                 required = true,
                 order = 1
         )
@@ -38,7 +38,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Username for login",
-                description = "Username to login into drupal to be able to fetch content from it",
+                description = "Username to login into drupal to be able to fetch content from it.",
                 required = true,
                 order = 2
         )
@@ -47,7 +47,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Password for login",
-                description = "Password to login into drupal to be able to fetch content from it",
+                description = "Password to login into drupal to be able to fetch content from it.",
                 required = true,
                 order = 3
         )
@@ -56,8 +56,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Login path",
-                description = "Login path." +
-                        "Don't need to changed the value if there are no modification in Drupal module')",
+                description = "Login path.",
                 required = true,
                 order = 4
         )
@@ -66,8 +65,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Logout path",
-                description = "Logout path." +
-                        "Don't need to changed the value if there are no modification in Drupal module",
+                description = "Logout path.",
                 required = true,
                 order = 5
         )
@@ -76,8 +74,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Drupal Content entry path",
-                description = "Drupal Content entry path from where the crawling should start." +
-                        " If you want for example all English content you can keep the value unmodified",
+                description = "Drupal Content entry path from where the crawling should start.",
                 required = true,
                 order = 6
         )
