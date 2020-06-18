@@ -29,7 +29,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Drupal URL",
-                description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')",
+                description = "Content URL location.",
                 required = true,
                 order = 1
         )
@@ -51,8 +51,38 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
                 required = true,
                 order = 3
         )
-        @StringSchema
+        @StringSchema(encrypted = true)
         String getPassword();
+
+        @Property(
+                title = "Login path",
+                description = "Login path." +
+                        "Don't need to changed the value if there are no modification in Drupal module')",
+                required = true,
+                order = 4
+        )
+        @StringSchema(defaultValue = "/user/login")
+        String getLoginPath();
+
+        @Property(
+                title = "Logout path",
+                description = "Logout path." +
+                        "Don't need to changed the value if there are no modification in Drupal module",
+                required = true,
+                order = 5
+        )
+        @StringSchema(defaultValue = "/user/logout")
+        String getLogoutPath();
+
+        @Property(
+                title = "Drupal Content entry path",
+                description = "Drupal Content entry path from where the crawling should start." +
+                        " If you want for example all English content you can keep the value unmodified",
+                required = true,
+                order = 6
+        )
+        @StringSchema(defaultValue = "/en/fusion")
+        String getDrupalContentEntryPath();
 
     }
 

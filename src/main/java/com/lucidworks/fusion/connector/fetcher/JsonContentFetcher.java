@@ -36,11 +36,15 @@ public class JsonContentFetcher implements ContentFetcher {
     ) {
         this.connectorConfig = connectorConfig;
         this.contentService = contentService;
-        connectorService = new ConnectorService(getDrupalUrl(), null, contentService);
+        connectorService = new ConnectorService(getDrupalContentEntryUrl(), null, contentService);
     }
 
     private String getDrupalUrl() {
         return connectorConfig.properties().getUrl();
+    }
+
+    private String getDrupalContentEntryUrl() {
+        return getDrupalUrl() + connectorConfig.properties().getDrupalContentEntryPath();
     }
 
     private DrupalLoginResponse getDrupalLoginResponse() {
@@ -65,7 +69,7 @@ public class JsonContentFetcher implements ContentFetcher {
 
                 fetchContext.newCandidate(url)
                         .metadata(m -> {
-                            m.setString("content", content);
+                            m.setString("content", content.substring(content.length() / 2));
                         }).emit();
 
                 fetchContext.newDocument(input.getId())
