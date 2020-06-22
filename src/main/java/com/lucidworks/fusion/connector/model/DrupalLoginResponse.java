@@ -1,5 +1,6 @@
 package com.lucidworks.fusion.connector.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +17,6 @@ public class DrupalLoginResponse implements Serializable {
     private String csrfToken;
     @JsonProperty("logout_token")
     private String logoutToken;
-
-    public String getAuthorization() {
-        return new StringBuilder().append("Bearer " + csrfToken).toString();
-    }
+    @JsonIgnore
+    private String cookie;
 }

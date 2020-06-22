@@ -3,22 +3,14 @@ package com.lucidworks.fusion.connector.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.Data;
-import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
-import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.RelationshipFields;
 import com.lucidworks.fusion.connector.model.TopLevelJsonApiData;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.ResponseBody;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Content Service fetch the content from Drupal
@@ -28,13 +20,11 @@ public class ContentService {
 
     private final String SELF_LINK = "self";
 
-    private final DrupalOkHttp drupalOkHttp;
     private final ObjectMapper mapper;
     private Map<String, TopLevelJsonapi> topLevelJsonapiDataMap;
 
     @Inject
-    public ContentService(DrupalOkHttp drupalOkHttp, ObjectMapper objectMapper) {
-        this.drupalOkHttp = drupalOkHttp;
+    public ContentService(ObjectMapper objectMapper) {
         this.mapper = objectMapper;
 
         topLevelJsonapiDataMap = new HashMap<>();
@@ -50,7 +40,7 @@ public class ContentService {
         log.info("Enter collectLinksFromDrupalContent method...");
 
         List<String> links = new ArrayList<>();
-        TopLevelJsonapi topLevelJsonapi = null;
+        TopLevelJsonapi topLevelJsonapi;
 
         try {
             topLevelJsonapi = mapper.readValue(content, TopLevelJsonapi.class);
@@ -92,31 +82,4 @@ public class ContentService {
 
         return links;
     }
-
-    /**
-     * Request to login the user in order to have the JWT token
-     *
-     * @param url
-     * @param username
-     * @param password
-     * @return
-     */
-    public DrupalLoginResponse login(String url, String username, String password) {
-        log.info("Trying to login the user {}", username);
-
-        DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
-
-        ResponseBody loginResponse = drupalOkHttp.login(url, drupalLoginRequest);
-
-        DrupalLoginResponse drupalLoginResponse = null;
-        try {
-            drupalLoginResponse = mapper.readValue(loginResponse.string(), DrupalLoginResponse.class);
-        } catch (IOException e) {
-            throw new ServiceException("Failed to get the loginResponse from login request.", e);
-        }
-
-        log.info("User: {} logged in", username);
-        return drupalLoginResponse;
-    }
-
 }

@@ -1,8 +1,7 @@
 package com.lucidworks.fusion.connector.fetcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.config.ContentConfig;
-import com.lucidworks.fusion.connector.content.DrupalContent;
-import com.lucidworks.fusion.connector.content.DrupalContentEntry;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
@@ -10,6 +9,8 @@ import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFe
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
+import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import com.lucidworks.fusion.connector.service.DrupalUserService;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -22,39 +23,25 @@ import java.util.Map;
 @Slf4j
 public class JsonContentFetcher implements ContentFetcher {
 
-    private final static String LAST_JOB_RUN_DATE_TIME = "lastJobRunDateTime";
-    private final static String ENTRY_LAST_UPDATED = "lastUpdatedEntry";
-
     private final ContentConfig connectorConfig;
     private ContentService contentService;
     private ConnectorService connectorService;
+    private ObjectMapper objectMapper;
+    private DrupalOkHttp drupalOkHttp;
+    private DrupalUserService drupalUserService;
+    private DrupalLoginResponse drupalLoginResponse;
 
     @Inject
     public JsonContentFetcher(
-            ContentConfig connectorConfig,
-            ContentService contentService
+            ContentConfig connectorConfig
     ) {
         this.connectorConfig = connectorConfig;
-        this.contentService = contentService;
-        connectorService = new ConnectorService(getDrupalContentEntryUrl(), null, contentService);
-    }
-
-    private String getDrupalUrl() {
-        return connectorConfig.properties().getUrl();
-    }
-
-    private String getDrupalContentEntryUrl() {
-        return getDrupalUrl() + connectorConfig.properties().getDrupalContentEntryPath();
-    }
-
-    private DrupalLoginResponse getDrupalLoginResponse() {
-        String username = connectorConfig.properties().getUsername();
-        String password = connectorConfig.properties().getPassword();
-
-        DrupalLoginResponse drupalLoginResponse = contentService.login(getDrupalUrl(), username, password);
-
-        return drupalLoginResponse;
-
+        this.objectMapper = new ObjectMapper();
+        this.drupalOkHttp = new DrupalOkHttp(objectMapper);
+        this.drupalUserService = new DrupalUserService(drupalOkHttp);
+        this.contentService = new ContentService(objectMapper);
+        this.drupalLoginResponse = new DrupalLoginResponse(); //getDrupalLoginResponse();
+        this.connectorService = new ConnectorService(getDrupalContentEntryUrl(), this.drupalLoginResponse, contentService, objectMapper);
     }
 
     @Override
@@ -79,6 +66,8 @@ public class JsonContentFetcher implements ContentFetcher {
                         })
                         .emit();
             });
+
+            logout();
         } catch (ServiceException e) {
             String message = "Failed to parse content from Drupal!";
             log.error(message, e);
@@ -90,18 +79,29 @@ public class JsonContentFetcher implements ContentFetcher {
         return fetchContext.newResult();
     }
 
-    private void emitDrupalCandidates(DrupalContent feed, FetchContext fetchContext, long lastJobRunDateTime) {
-        Map<String, DrupalContentEntry> entryMap = feed.getEntries();
-        entryMap.forEach((id, entry) -> {
-            fetchContext.newCandidate(id)
-                    .metadata(m -> {
-                        m.setString("content", entry.getContent());
-                        // add last time when entry was modified
-                        m.setLong(ENTRY_LAST_UPDATED, entry.getLastUpdated());
-                        // add 'lastJobRunDateTime'.
-                        m.setLong(LAST_JOB_RUN_DATE_TIME, lastJobRunDateTime);
-                    })
-                    .emit();
-        });
+    private String getDrupalUrl() {
+        return connectorConfig.properties().getUrl();
+    }
+
+    private String getDrupalContentEntryUrl() {
+        return getDrupalUrl() + connectorConfig.properties().getDrupalContentEntryPath();
+    }
+
+    private DrupalLoginResponse getDrupalLoginResponse() {
+        String username = connectorConfig.properties().getUsername();
+        String password = connectorConfig.properties().getPassword();
+
+        this.drupalLoginResponse = drupalUserService.login(getDrupalUrl(), username, password);
+
+        return this.drupalLoginResponse;
+
+    }
+
+    private boolean logout() {
+        return drupalUserService.logout(getDrupalLogoutUrl(), drupalLoginResponse);
+    }
+
+    private String getDrupalLogoutUrl() {
+        return getDrupalUrl() + connectorConfig.properties().getLoginPath();
     }
 }

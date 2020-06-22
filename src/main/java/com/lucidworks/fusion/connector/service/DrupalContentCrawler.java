@@ -1,14 +1,11 @@
 package com.lucidworks.fusion.connector.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Drupal Content Crawler can create a Map with all links and content from them.
@@ -30,8 +27,9 @@ public class DrupalContentCrawler {
      * @param loggedInUser   the loggedInUser with JWT token inside
      * @param contentService the content service class
      */
-    public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService) {
-        this.drupalOkHttp = new DrupalOkHttp();
+    public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService,
+                                ObjectMapper mapper) {
+        this.drupalOkHttp = new DrupalOkHttp(mapper);
         this.loggedInUser = loggedInUser;
 
         this.drupalUrls = new ArrayList<>(Arrays.asList(drupalUrl));
