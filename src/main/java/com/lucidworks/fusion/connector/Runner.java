@@ -18,7 +18,7 @@ public class Runner {
 
         DrupalLoginResponse drupalLoginResponse = contentService.login(baseUrl, "authenticated", "authenticated");
 
-        ConnectorService connectorService = new ConnectorService(baseUrl + "fusion", drupalLoginResponse, contentService);
+        ConnectorService connectorService = new ConnectorService(baseUrl + "en/fusion/node/recipe", drupalLoginResponse, contentService);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
