@@ -39,7 +39,6 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
         @Property(
                 title = "Username for login",
                 description = "Username to login into drupal to be able to fetch content from it.",
-                required = true,
                 order = 2
         )
         @StringSchema
@@ -48,7 +47,6 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
         @Property(
                 title = "Password for login",
                 description = "Password to login into drupal to be able to fetch content from it.",
-                required = true,
                 order = 3
         )
         @StringSchema(encrypted = true)
