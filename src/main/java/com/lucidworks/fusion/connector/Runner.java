@@ -1,11 +1,11 @@
 package com.lucidworks.fusion.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
-import com.lucidworks.fusion.connector.service.DrupalUserService;
 
 import java.util.Map;
 
@@ -17,9 +17,10 @@ public class Runner {
 
         DrupalOkHttp drupalOkHttp = new DrupalOkHttp(mapper);
         ContentService contentService = new ContentService(mapper);
-        DrupalUserService drupalUserService = new DrupalUserService(drupalOkHttp);
 
-        DrupalLoginResponse drupalLoginResponse = drupalUserService.login(baseUrl + "/user/login", "authenticated", "authenticated");
+        DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest("authenticated", "authenticated");
+
+        DrupalLoginResponse drupalLoginResponse = drupalOkHttp.loginResponse(baseUrl + "/user/login", drupalLoginRequest);
 
         ConnectorService connectorService = new ConnectorService(baseUrl + "/en/fusion", new DrupalLoginResponse(), contentService, mapper);
 
@@ -27,9 +28,8 @@ public class Runner {
 
         response.forEach((currentUrl, content) -> {
             System.out.println(currentUrl);
-            //System.out.println(content);
         });
 
-        System.out.println("Logout is successful: " + drupalUserService.logout(baseUrl + "/user/logout", drupalLoginResponse));
+        System.out.println("Logout is successful: " + drupalOkHttp.logout(baseUrl + "/user/logout", drupalLoginResponse));
     }
 }

@@ -5,7 +5,11 @@ import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Drupal Content Crawler can create a Map with all links and content from them.

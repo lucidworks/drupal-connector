@@ -2,15 +2,17 @@ package com.lucidworks.fusion.connector.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
-import com.lucidworks.fusion.connector.model.Data;
-import com.lucidworks.fusion.connector.model.RelationshipFields;
-import com.lucidworks.fusion.connector.model.TopLevelJsonApiData;
-import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
+import com.lucidworks.fusion.connector.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Content Service fetch the content from Drupal
@@ -26,7 +28,6 @@ public class ContentService {
     @Inject
     public ContentService(ObjectMapper objectMapper) {
         this.mapper = objectMapper;
-
         topLevelJsonapiDataMap = new HashMap<>();
     }
 

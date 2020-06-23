@@ -6,7 +6,11 @@ import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.RequestBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 
@@ -16,6 +20,7 @@ public class DrupalOkHttp {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String FORMAT = "?_format=json";
     private static final String CRSF_TOKEN = "&crsf_token=";
+
     private OkHttpClient okHttpClient;
     private ObjectMapper mapper;
 
@@ -65,11 +70,10 @@ public class DrupalOkHttp {
      * @return
      */
     public DrupalLoginResponse loginResponse(String url, DrupalLoginRequest drupalLoginRequest) {
-        RequestBody requestBody =
-                FormBody.create(drupalLoginRequest.getJson(), JSON);
-
         String loginUrl = url + FORMAT;
 
+        RequestBody requestBody =
+                RequestBody.Companion.create(drupalLoginRequest.getJson(), JSON);
         Request loginRequest = new Request.Builder()
                 .url(loginUrl)
                 .post(requestBody)
