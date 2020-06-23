@@ -81,11 +81,17 @@ public class JsonContentFetcher implements ContentFetcher {
         String username = connectorConfig.properties().getUsername();
         String password = connectorConfig.properties().getPassword();
 
-        DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
 
-        drupalLoginResponse = drupalOkHttp.loginResponse(getDrupalLoginUrl(), drupalLoginRequest);
+        if (username != null && !username.isEmpty() &&
+                password != null && !password.isEmpty()) {
+            DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
 
-        return drupalLoginResponse;
+            drupalLoginResponse = drupalOkHttp.loginResponse(getDrupalLoginUrl(), drupalLoginRequest);
+
+            return drupalLoginResponse;
+        } else {
+            return new DrupalLoginResponse();
+        }
     }
 
     private boolean logout() {
