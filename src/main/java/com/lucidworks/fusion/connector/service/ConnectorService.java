@@ -1,5 +1,6 @@
 package com.lucidworks.fusion.connector.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,8 @@ public class ConnectorService {
     private final DrupalContentCrawler drupalContentCrawler;
     private boolean isProcessStarted = false;
 
-    public ConnectorService(String drupalUrl, DrupalLoginResponse drupalLoginResponse, ContentService contentService) {
-        this.drupalContentCrawler = new DrupalContentCrawler(drupalUrl, drupalLoginResponse, contentService);
+    public ConnectorService(String drupalUrl, DrupalLoginResponse drupalLoginResponse, ContentService contentService, ObjectMapper mapper) {
+        this.drupalContentCrawler = new DrupalContentCrawler(drupalUrl, drupalLoginResponse, contentService, mapper);
     }
 
     /**
