@@ -14,14 +14,12 @@ public class ContentServiceTest {
     private static final int TOTAL = 5;
 
     private ContentService contentService;
-    private DrupalOkHttp drupalOkHttp;
     private ObjectMapper mapper;
 
     @Before
     public void setUp() {
-        drupalOkHttp = new DrupalOkHttp();
         mapper = new ObjectMapper();
-        contentService = new ContentService(drupalOkHttp, mapper);
+        contentService = new ContentService(mapper);
     }
 
     @Test

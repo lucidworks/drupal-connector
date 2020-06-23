@@ -2,6 +2,7 @@ package com.lucidworks.fusion.connector.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -13,6 +14,7 @@ import org.mockito.quality.Strictness;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -30,10 +32,13 @@ public class DrupalContentCrawlerTest {
     private ContentService contentService;
 
     @Mock
-    private DrupalOkHttp drupalOkHttp;
+    private DrupalLoginResponse drupalLoginResponse;
 
     @Mock
     private ObjectMapper mapper;
+
+    @Mock
+    private DrupalOkHttp drupalOkHttp;
 
     private MockitoSession mockitoSession;
 
@@ -46,6 +51,12 @@ public class DrupalContentCrawlerTest {
                 .startMocking();
         MockitoAnnotations.initMocks(this);
 
+        drupalContentCrawler = new DrupalContentCrawler(URL, drupalLoginResponse, contentService, mapper);
+    }
+
+    @After
+    public void tearDown() {
+        mockitoSession.finishMocking();
     }
 
     @Test
@@ -55,11 +66,16 @@ public class DrupalContentCrawlerTest {
         drupalContentCrawler.startCrawling();
 
         List<String> links = new ArrayList<>();
-        links.addAll(drupalContentCrawler.getVisitedUrls().values());
+        links.addAll(drupalContentCrawler.getVisitedUrls().keySet());
 
-        List<String> expectedLinksList = prepareListWithExpectedLinks();
+        List<String> expectedLinks = prepareListWithExpectedLinks();
 
-        // assertEquals(TOTAL, links.size());
+        assertEquals(TOTAL, links.size());
+        assertEquals(expectedLinks.get(0), links.get(0));
+        assertEquals(expectedLinks.get(1), links.get(1));
+        assertEquals(expectedLinks.get(2), links.get(2));
+        assertEquals(expectedLinks.get(3), links.get(3));
+        assertEquals(expectedLinks.get(4), links.get(4));
 
     }
 
@@ -78,17 +94,16 @@ public class DrupalContentCrawlerTest {
                 "]," +
                 "\"links\":{\"node--article\":{\"href\":\"http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/article\"}," +
                 "\"node--page\":{\"href\":\"http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page\"}," +
-                "\"node--recipe\":{\"href\":\"http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/recipe\"}," +
                 "\"self\":{\"href\":\"http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion\"}}}";
     }
 
     private List<String> prepareListWithExpectedLinks() {
         List<String> expectedLinks = new ArrayList<>();
         expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page/e0274815-10ba-4b41-b65f-2e0c918dbe09/revision_uid?resourceVersion=id%3A176");
-        expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page/e0274815-10ba-4b41-b65f-2e0c918dbe09/node_type?resourceVersion=id%3A176");
         expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/article");
+        expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion");
+        expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page/e0274815-10ba-4b41-b65f-2e0c918dbe09/node_type?resourceVersion=id%3A176");
         expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page");
-        expectedLinks.add("http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/recipe");
 
         return expectedLinks;
     }
