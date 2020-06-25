@@ -74,6 +74,7 @@ public class ContentService {
         }
 
         if (topLevelJsonapi.getLinks() != null || !topLevelJsonapi.getLinks().isEmpty()) {
+            topLevelJsonapiDataMap.put(url, topLevelJsonapi);
             topLevelJsonapi.getLinks().forEach((linkTag, linkHref) -> {
                 if (!linkTag.equals(SELF_LINK)) {
                     links.add(linkHref.getHref());
@@ -82,5 +83,9 @@ public class ContentService {
         }
 
         return links;
+    }
+
+    public Map<String, TopLevelJsonapi> getTopLevelJsonapiDataMap(){
+        return  topLevelJsonapiDataMap;
     }
 }

@@ -5,6 +5,7 @@ import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,19 +50,27 @@ public class JsonContentFetcher implements ContentFetcher {
             FetchInput input = fetchContext.getFetchInput();
             Map<String, Object> metaData = input.getMetadata();
 
+            Map<String, Object> objectMap = new HashMap<>();
+
             Map<String, String> contentMap = connectorService.prepareDataToUpload();
 
-            contentMap.forEach((url, content) -> {
+            Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
-                fetchContext.newCandidate(url)
-                        .metadata(m -> {
-                            m.setString("content", content.substring(content.length() / 2));
-                        }).emit();
+            topLevelJsonapiMap.forEach((k, v) -> {
+                objectMap.put("data", v.getData().toString());
+                objectMap.put("jsonapi", v.getJsonapi().toString());
+                objectMap.put("links", v.getLinks().toString());
+//                objectMap.put("meta", v.getMeta().toString().isEmpty() ? "nullMeta" : v.getMeta().toString());
+//                objectMap.put("errors", v.getErrors().toString().isEmpty() ? "nullErrors" : v.getErrors().toString());
+//                objectMap.put("included", v.getIncluded().toString().isEmpty() ? "nullIncluded" : v.getIncluded().toString());
+            });
 
-                fetchContext.newDocument(input.getId())
+            topLevelJsonapiMap.forEach((url, data) -> {
+                fetchContext.newDocument(String.valueOf(url.length()))
                         .fields(f -> {
-                            f.setString("content_s", (String) metaData.get("content"));
-                            f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
+                            f.setString("url", url);
+                            f.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
+                            f.merge(objectMap);
                         })
                         .emit();
             });

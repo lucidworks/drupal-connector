@@ -3,6 +3,7 @@ package com.lucidworks.fusion.connector.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class DrupalContentCrawler {
     private DrupalLoginResponse loggedInUser;
     private DrupalOkHttp drupalOkHttp;
     private ContentService contentService;
+    private Map<String, TopLevelJsonapi> topLevelJsonapiMap;
 
     /**
      * Constructor for Crawler
@@ -38,6 +40,7 @@ public class DrupalContentCrawler {
 
         this.drupalUrls = new ArrayList<>(Arrays.asList(drupalUrl));
         this.visitedUrls = new HashMap<>();
+        this.topLevelJsonapiMap = new HashMap<>();
 
         this.contentService = contentService;
     }
@@ -66,6 +69,7 @@ public class DrupalContentCrawler {
                 currentStepContent.forEach((url, content) -> {
                     drupalUrls.addAll(contentService.collectLinksFromDrupalContent(url, content));
                     visitedUrls.put(url, content);
+                    topLevelJsonapiMap.putAll(contentService.getTopLevelJsonapiDataMap());
                 });
 
                 drupalUrls.removeIf(drupalUrl -> visitedUrls.containsKey(drupalUrl));
