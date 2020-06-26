@@ -3,6 +3,7 @@ package com.lucidworks.fusion.connector.fetcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.exception.ServiceException;
+import com.lucidworks.fusion.connector.model.Data;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
@@ -57,7 +58,11 @@ public class JsonContentFetcher implements ContentFetcher {
             Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
             topLevelJsonapiMap.forEach((k, v) -> {
-                objectMap.put("data", v.getData().toString());
+                for (Data d : v.getData()) {
+                    objectMap.put("type", d.getType());
+                    objectMap.put("attributes", d.getAttributes().getFields().toString());
+                    objectMap.put("relationships", d.getRelationships().toString());
+                }
                 objectMap.put("jsonapi", v.getJsonapi().toString());
                 objectMap.put("links", v.getLinks().toString());
 //                objectMap.put("meta", v.getMeta().toString().isEmpty() ? "nullMeta" : v.getMeta().toString());
