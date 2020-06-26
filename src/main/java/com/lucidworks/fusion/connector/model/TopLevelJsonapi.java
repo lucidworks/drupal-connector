@@ -1,6 +1,5 @@
 package com.lucidworks.fusion.connector.model;
 
-import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,7 +10,6 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
-@Type("topLevel")
 public class TopLevelJsonapi implements Serializable {
     private Jsonapi jsonapi;
     private Data[] data;

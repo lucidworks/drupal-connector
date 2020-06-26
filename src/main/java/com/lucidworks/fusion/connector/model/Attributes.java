@@ -16,7 +16,7 @@ import java.util.Map;
 public class Attributes implements Serializable {
 
     @JsonProperty("drupal_internal__nid")
-    private Integer drupalInternalTid;
+    private Integer drupalInternalNid;
 
     @JsonProperty("drupal_internal__vid")
     private Integer drupalInternalVid;

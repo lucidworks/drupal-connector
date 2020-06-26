@@ -3,6 +3,7 @@ package com.lucidworks.fusion.connector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
@@ -22,14 +23,16 @@ public class Runner {
 
         DrupalLoginResponse drupalLoginResponse = drupalOkHttp.loginResponse(baseUrl + "/user/login", drupalLoginRequest);
 
-        ConnectorService connectorService = new ConnectorService(baseUrl + "/en/fusion", new DrupalLoginResponse(), contentService, mapper);
+        ConnectorService connectorService = new ConnectorService(baseUrl + "/en/fusion/node/article", new DrupalLoginResponse(), contentService, mapper);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
-        response.forEach((currentUrl, content) -> {
-            System.out.println(currentUrl);
+        Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
+
+        topLevelJsonapiMap.forEach((url, data) -> {
+            System.out.println(data.toString());
         });
 
-        System.out.println("Logout is successful: " + drupalOkHttp.logout(baseUrl + "/user/logout", drupalLoginResponse));
+        //System.out.println("Logout is successful: " + drupalOkHttp.logout(baseUrl + "/user/logout", drupalLoginResponse));
     }
 }
