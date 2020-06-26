@@ -27,10 +27,6 @@ public class Runner {
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
-        response.forEach((currentUrl, content) -> {
-            System.out.println(currentUrl);
-        });
-
         Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
         topLevelJsonapiMap.forEach((url, data) -> {

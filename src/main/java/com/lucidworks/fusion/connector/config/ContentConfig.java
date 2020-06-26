@@ -49,7 +49,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
                 description = "Password to login into drupal to be able to fetch content from it.",
                 order = 3
         )
-        @StringSchema(encrypted = true)
+        @StringSchema()
         String getPassword();
 
         @Property(

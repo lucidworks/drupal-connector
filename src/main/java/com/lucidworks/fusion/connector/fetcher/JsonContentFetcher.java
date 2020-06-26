@@ -3,16 +3,15 @@ package com.lucidworks.fusion.connector.fetcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.exception.ServiceException;
-import com.lucidworks.fusion.connector.model.Data;
 import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
-import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import com.lucidworks.fusion.connector.util.DataUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -47,40 +46,15 @@ public class JsonContentFetcher implements ContentFetcher {
 
     @Override
     public FetchResult fetch(FetchContext fetchContext) {
+
+        Map<String, TopLevelJsonapi> topLevelJsonapiMap = new HashMap<>();
+        Map<String, String> contentMap = new HashMap<>();
+
         try {
-            FetchInput input = fetchContext.getFetchInput();
-            Map<String, Object> metaData = input.getMetadata();
+            contentMap = connectorService.prepareDataToUpload();
 
-            Map<String, Object> objectMap = new HashMap<>();
+            topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
-            Map<String, String> contentMap = connectorService.prepareDataToUpload();
-
-            Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
-
-            topLevelJsonapiMap.forEach((k, v) -> {
-                for (Data d : v.getData()) {
-                    objectMap.put("type", d.getType());
-                    objectMap.put("attributes", d.getAttributes().getFields().toString());
-                    objectMap.put("relationships", d.getRelationships().toString());
-                }
-                objectMap.put("jsonapi", v.getJsonapi().toString());
-                objectMap.put("links", v.getLinks().toString());
-//                objectMap.put("meta", v.getMeta().toString().isEmpty() ? "nullMeta" : v.getMeta().toString());
-//                objectMap.put("errors", v.getErrors().toString().isEmpty() ? "nullErrors" : v.getErrors().toString());
-//                objectMap.put("included", v.getIncluded().toString().isEmpty() ? "nullIncluded" : v.getIncluded().toString());
-            });
-
-            topLevelJsonapiMap.forEach((url, data) -> {
-                fetchContext.newDocument(String.valueOf(url.length()))
-                        .fields(f -> {
-                            f.setString("url", url);
-                            f.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
-                            f.merge(objectMap);
-                        })
-                        .emit();
-            });
-
-            logout();
         } catch (ServiceException e) {
             String message = "Failed to parse content from Drupal!";
             log.error(message, e);
@@ -88,6 +62,29 @@ public class JsonContentFetcher implements ContentFetcher {
                     .withError(message)
                     .emit();
         }
+
+        if (contentMap.keySet().size() == topLevelJsonapiMap.keySet().size()) {
+
+            Map<String, Object> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+
+            topLevelJsonapiMap.forEach((url, data) -> {
+                fetchContext.newDocument(url)
+                        .fields(field -> {
+                            field.setString("url", url);
+                            field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
+                            field.merge(objectMap);
+                        })
+                        .emit();
+            });
+        } else {
+            String message = "Failed to store all Drupal Content.";
+            log.error(message);
+            fetchContext.newError(fetchContext.getFetchInput().getId())
+                    .withError(message)
+                    .emit();
+        }
+
+        logout();
 
         return fetchContext.newResult();
     }
