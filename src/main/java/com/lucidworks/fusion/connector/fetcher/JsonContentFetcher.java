@@ -67,15 +67,16 @@ public class JsonContentFetcher implements ContentFetcher {
 
             Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
 
-            topLevelJsonapiMap.forEach((url, data) -> {
-                fetchContext.newDocument(url)
+            for (String key : objectMap.keySet()) {
+                Map<String, Object> pageContentMap = objectMap.get(key);
+                fetchContext.newDocument(key)
                         .fields(field -> {
-                            field.setString("url", url);
+                            field.setString("url", key);
                             field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
-                            field.merge(objectMap.get(url));
+                            field.merge(pageContentMap);
                         })
                         .emit();
-            });
+            }
         } else {
             String message = "Failed to store all Drupal Content.";
             log.error(message);

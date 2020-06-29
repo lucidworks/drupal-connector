@@ -6,21 +6,24 @@ import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Util class to extract the content of every field from a Drupal page.
+ */
 public final class DataUtil {
 
     private DataUtil() {
     }
 
     public static String getDataId(Data data) {
-        return data.getId().isEmpty() ? "No id" : data.getId();
+        return data.getId() != null ? data.getId() : "No id";
     }
 
     public static String getDataType(Data data) {
-        return data.getType().isEmpty() ? "No type" : data.getType();
+        return data.getType() != null ? data.getType() : "No type";
     }
 
     public static String getDataLinks(Data data) {
-        return data.getLinks().isEmpty() ? "No data links" : data.getLinks().toString();
+        return data.getLinks() != null ? data.getLinks().toString() : "No data links";
     }
 
     public static String getDataAttributeDrupalInternalNid(Data data) {
@@ -95,6 +98,12 @@ public final class DataUtil {
         return topLevelJsonapi.getIncluded() != null ? topLevelJsonapi.getIncluded().toString() : "No extra info";
     }
 
+    /**
+     * Generate all the content from every page and add it to a map
+     *
+     * @param topLevelJsonapiMap
+     * @return The map with all the content indexed
+     */
     public static Map<String, Map<String, Object>> generateObjectMap(Map<String, TopLevelJsonapi> topLevelJsonapiMap) {
         Map<String, Map<String, Object>> allObjectsMap = new HashMap<>();
 
