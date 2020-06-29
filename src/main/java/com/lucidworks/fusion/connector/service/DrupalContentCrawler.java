@@ -52,6 +52,7 @@ public class DrupalContentCrawler {
     public void startCrawling() {
         log.info("Enter startCrawling method.");
 
+        processFinished = false;
         Map<String, String> currentStepContent = new HashMap<>();
         List<String> urlsVisitedInCurrentStep = new ArrayList<>();
         try {
