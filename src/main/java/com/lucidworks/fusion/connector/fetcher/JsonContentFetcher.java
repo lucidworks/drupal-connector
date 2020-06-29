@@ -65,14 +65,14 @@ public class JsonContentFetcher implements ContentFetcher {
 
         if (contentMap.keySet().size() == topLevelJsonapiMap.keySet().size()) {
 
-            Map<String, Object> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+            Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
 
             topLevelJsonapiMap.forEach((url, data) -> {
                 fetchContext.newDocument(url)
                         .fields(field -> {
                             field.setString("url", url);
                             field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
-                            field.merge(objectMap);
+                            field.merge(objectMap.get(url));
                         })
                         .emit();
             });

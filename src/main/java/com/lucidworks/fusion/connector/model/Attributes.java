@@ -38,6 +38,8 @@ public class Attributes implements Serializable {
     private boolean revisionTranslationAffected;
 
     private Path path;
+    private String title;
+    private AttributeBody body;
 
     private Map<String, Object> fields = new HashMap<>();
 

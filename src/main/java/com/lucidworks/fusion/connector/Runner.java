@@ -7,6 +7,7 @@ import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import com.lucidworks.fusion.connector.util.DataUtil;
 
 import java.util.Map;
 
@@ -29,8 +30,16 @@ public class Runner {
 
         Map<String, TopLevelJsonapi> topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
-        topLevelJsonapiMap.forEach((url, data) -> {
+        Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+
+        objectMap.forEach((url, data) -> {
+            System.out.println("**************************************************************************************");
+            System.out.println("**************************************************************************************");
             System.out.println(data.toString());
+//            data.forEach((k, v) -> {
+//                System.out.println(k + " :: " + v.toString());
+//            });
+
         });
 
         //System.out.println("Logout is successful: " + drupalOkHttp.logout(baseUrl + "/user/logout", drupalLoginResponse));

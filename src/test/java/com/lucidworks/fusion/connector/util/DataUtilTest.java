@@ -47,8 +47,10 @@ public class DataUtilTest {
         assertEquals("e0274815-10ba-4b41-b65f-2e0c918dbe09", objectMap.get("data_id"));
         assertEquals(true, objectMap.get("attribute_defaultLangcode"));
         assertEquals("{self=LinkHref(href=http://self)}", objectMap.get("data_links"));
+        assertEquals("About Umami", objectMap.get("attribute_title"));
+        assertEquals("No body", objectMap.get("attribute_body"));
         assertEquals("2020-06-16T07:56:29+00:00", objectMap.get("attribute_revision_timestamp"));
-        assertEquals("{content_translation_source=und, content_translation_outdated=false, created=2020-06-16T07:56:29+00:00, title=About Umami}", objectMap.get("attribute_fields"));
+        assertEquals("{content_translation_source=und, content_translation_outdated=false, created=2020-06-16T07:56:29+00:00}", objectMap.get("attribute_fields"));
         assertEquals(true, objectMap.get("attribute_status"));
         assertEquals("86", objectMap.get("attribute_drupal_internal__nid"));
         assertEquals("en", objectMap.get("attribute_langcode"));
@@ -60,7 +62,7 @@ public class DataUtilTest {
         assertEquals("No revisionLog", objectMap.get("attribute_revision_log"));
         assertEquals("2020-06-16T07:56:29+00:00", objectMap.get("attribute_changed"));
         assertEquals("Path(alias=/about-umami, pid=501, langcode=en)", objectMap.get("attribute_path"));
-        assertEquals("No Extra Info", objectMap.get("included"));
+        assertEquals("No extra info", objectMap.get("included"));
         assertEquals("{node_type=RelationshipFields(data={type=node_type--node_type, id=c142b6c7-af65-4fb5-8fdc-51bdf2b72e92}, Links={related=LinkHref(href=http://self), self=LinkHref(href=http://url1)})}", objectMap.get("relationships_fields"));
         assertEquals("No Errors", objectMap.get("errors"));
 

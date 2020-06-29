@@ -12,27 +12,27 @@ public final class DataUtil {
     }
 
     public static String getDataId(Data data) {
-        return data.getId().isEmpty() ? "No Id" : data.getId();
+        return data.getId().isEmpty() ? "No id" : data.getId();
     }
 
     public static String getDataType(Data data) {
-        return data.getType().isEmpty() ? "No Type" : data.getType();
+        return data.getType().isEmpty() ? "No type" : data.getType();
     }
 
     public static String getDataLinks(Data data) {
-        return data.getLinks().isEmpty() ? "No Data Links" : data.getLinks().toString();
+        return data.getLinks().isEmpty() ? "No data links" : data.getLinks().toString();
     }
 
     public static String getDataAttributeDrupalInternalNid(Data data) {
-        return data.getAttributes().getDrupalInternalNid() != null ? String.valueOf(data.getAttributes().getDrupalInternalNid()) : "No DrupalInternalNid";
+        return data.getAttributes().getDrupalInternalNid() != null ? String.valueOf(data.getAttributes().getDrupalInternalNid()) : "No drupalInternalNid";
     }
 
     public static String getDataAttributeDrupalInternalVid(Data data) {
-        return data.getAttributes().getDrupalInternalVid() != null ? String.valueOf(data.getAttributes().getDrupalInternalVid()) : "No DrupalInternalVid";
+        return data.getAttributes().getDrupalInternalVid() != null ? String.valueOf(data.getAttributes().getDrupalInternalVid()) : "No drupalInternalVid";
     }
 
     public static String getDataAttributeLangcode(Data data) {
-        return data.getAttributes().getLangcode() != null ? data.getAttributes().getLangcode() : "No Langcode";
+        return data.getAttributes().getLangcode() != null ? data.getAttributes().getLangcode() : "No langcode";
     }
 
     public static String getDataAttributeRevisionTimestamp(Data data) {
@@ -59,24 +59,32 @@ public final class DataUtil {
         return data.getAttributes().isRevisionTranslationAffected();
     }
 
+    public static String getDataAttributeTitle(Data data) {
+        return data.getAttributes().getTitle() != null ? data.getAttributes().getTitle() : "No title";
+    }
+
     public static String getDataAttributePath(Data data) {
-        return data.getAttributes().getPath() != null ? data.getAttributes().getPath().toString() : "No Path content.";
+        return data.getAttributes().getPath() != null ? data.getAttributes().getPath().toString() : "No path content";
+    }
+
+    public static String getDataAttributeBody(Data data) {
+        return data.getAttributes().getBody() != null ? data.getAttributes().getBody().getValue() : "No body";
     }
 
     public static String getDataAttributeFields(Data data) {
-        return data.getAttributes().getFields() != null ? data.getAttributes().getFields().toString() : "No Extra Fields";
+        return data.getAttributes().getFields() != null ? data.getAttributes().getFields().toString() : "No extra fields";
     }
 
     public static String getDataRelationships(Data data) {
-        return data.getRelationships() != null ? data.getRelationships().getFields().toString() : "No Relationships Fields";
+        return data.getRelationships() != null ? data.getRelationships().getFields().toString() : "No relationships fields";
     }
 
     public static String getLinks(TopLevelJsonapi topLevelJsonapi) {
-        return topLevelJsonapi.getLinks() != null ? topLevelJsonapi.getLinks().toString() : "No Links";
+        return topLevelJsonapi.getLinks() != null ? topLevelJsonapi.getLinks().toString() : "No links";
     }
 
     public static String getMeta(TopLevelJsonapi topLevelJsonapi) {
-        return topLevelJsonapi.getMeta() != null ? topLevelJsonapi.getMeta().toString() : "No Meta";
+        return topLevelJsonapi.getMeta() != null ? topLevelJsonapi.getMeta().toString() : "No meta";
     }
 
     public static String getErrors(TopLevelJsonapi topLevelJsonapi) {
@@ -84,42 +92,54 @@ public final class DataUtil {
     }
 
     public static String getIncluded(TopLevelJsonapi topLevelJsonapi) {
-        return topLevelJsonapi.getIncluded() != null ? topLevelJsonapi.getIncluded().toString() : "No Extra Info";
+        return topLevelJsonapi.getIncluded() != null ? topLevelJsonapi.getIncluded().toString() : "No extra info";
     }
 
-    public static Map<String, Object> generateObjectMap(Map<String, TopLevelJsonapi> topLevelJsonapiMap) {
-        Map<String, Object> objectMap = new HashMap<>();
-        topLevelJsonapiMap.forEach((url, topLevelJsonapi) -> {
+    public static Map<String, Map<String, Object>> generateObjectMap(Map<String, TopLevelJsonapi> topLevelJsonapiMap) {
+        Map<String, Map<String, Object>> allObjectsMap = new HashMap<>();
+
+        for (String url : topLevelJsonapiMap.keySet()) {
+            Map<String, Object> objectMap = new HashMap<>();
+            TopLevelJsonapi topLevelJsonapi = topLevelJsonapiMap.get(url);
 
             if (topLevelJsonapi.getData() != null || topLevelJsonapi.getData().length > 0) {
 
+                int i = 1;
                 for (Data data : topLevelJsonapi.getData()) {
-                    objectMap.put("data_id", DataUtil.getDataId(data));
-                    objectMap.put("data_type", DataUtil.getDataType(data));
-                    objectMap.put("data_links", DataUtil.getDataLinks(data));
+                    Map<String, Object> dataMap = new HashMap<>();
 
-                    objectMap.put("attribute_drupal_internal__nid", DataUtil.getDataAttributeDrupalInternalNid(data));
-                    objectMap.put("attribute_drupal_internal__vid", DataUtil.getDataAttributeDrupalInternalVid(data));
-                    objectMap.put("attribute_langcode", DataUtil.getDataAttributeLangcode(data));
-                    objectMap.put("attribute_revision_timestamp", DataUtil.getDataAttributeRevisionTimestamp(data));
-                    objectMap.put("attribute_revision_log", DataUtil.getDataAttributeRevisionLog(data));
-                    objectMap.put("attribute_status", DataUtil.getDataAttributeStatus(data));
-                    objectMap.put("attribute_changed", DataUtil.getDataAttributeChanged(data));
-                    objectMap.put("attribute_defaultLangcode", DataUtil.getDataAttributeDefaultLangcode(data));
-                    objectMap.put("attribute_revision_translation_affected", DataUtil.getDataAttributeRevisionTranslationAffected(data));
-                    objectMap.put("attribute_path", DataUtil.getDataAttributePath(data));
-                    objectMap.put("attribute_fields", DataUtil.getDataAttributeFields(data));
+                    dataMap.put("data_id", DataUtil.getDataId(data));
+                    dataMap.put("data_type", DataUtil.getDataType(data));
+                    dataMap.put("data_links", DataUtil.getDataLinks(data));
 
-                    objectMap.put("relationships_fields", DataUtil.getDataRelationships(data));
+                    dataMap.put("attribute_drupal_internal__nid", DataUtil.getDataAttributeDrupalInternalNid(data));
+                    dataMap.put("attribute_drupal_internal__vid", DataUtil.getDataAttributeDrupalInternalVid(data));
+                    dataMap.put("attribute_langcode", DataUtil.getDataAttributeLangcode(data));
+                    dataMap.put("attribute_revision_timestamp", DataUtil.getDataAttributeRevisionTimestamp(data));
+                    dataMap.put("attribute_revision_log", DataUtil.getDataAttributeRevisionLog(data));
+                    dataMap.put("attribute_status", DataUtil.getDataAttributeStatus(data));
+                    dataMap.put("attribute_changed", DataUtil.getDataAttributeChanged(data));
+                    dataMap.put("attribute_defaultLangcode", DataUtil.getDataAttributeDefaultLangcode(data));
+                    dataMap.put("attribute_revision_translation_affected", DataUtil.getDataAttributeRevisionTranslationAffected(data));
+                    dataMap.put("attribute_title", DataUtil.getDataAttributeTitle(data));
+                    dataMap.put("attribute_path", DataUtil.getDataAttributePath(data));
+                    dataMap.put("attribute_body_value", DataUtil.getDataAttributeBody(data));
+                    dataMap.put("attribute_fields", DataUtil.getDataAttributeFields(data));
+
+                    dataMap.put("relationships_fields", DataUtil.getDataRelationships(data));
+
+                    objectMap.put("data_" + i++, dataMap.values());
                 }
 
                 objectMap.put("links", DataUtil.getLinks(topLevelJsonapi));
                 objectMap.put("meta", DataUtil.getMeta(topLevelJsonapi));
                 objectMap.put("errors", DataUtil.getErrors(topLevelJsonapi));
                 objectMap.put("included", DataUtil.getIncluded(topLevelJsonapi));
-            }
-        });
 
-        return objectMap;
+                allObjectsMap.put(url, objectMap);
+            }
+        }
+
+        return allObjectsMap;
     }
 }
