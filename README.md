@@ -31,9 +31,9 @@ This connector is using the `connector-plugin-sdk` version `2.0.1` which is comp
 1. **_Drupal URL_** - the link from where this connector takes all the content.
 2. **_Username_** - the username used to login into drupal to be able to fetch a specific type of content. There are different roles for users defined in that module.
 3. **_Password_** 
-4. **_Login Path_** - the path used to the login request ```defaultValue = "/user/login"``` 
-4. **_Logout Path_** - the path used to the logout request ```defaultValue = "/user/logout"```
-5. **_Entry Path_** -  this entry indicates the page from where fetching the content begins.
+4. **_Login Path_** - the path used to the login request - ```defaultValue = "/user/login"``` 
+4. **_Logout Path_** - the path used to the logout request - ```defaultValue = "/user/logout"```
+5. **_Entry Path_** -  this entry indicates the page from where fetching the content begins - ```defaultValue = "/en/fusion"```
 
 #### Properties added in MANIFEST.MF
 ```
