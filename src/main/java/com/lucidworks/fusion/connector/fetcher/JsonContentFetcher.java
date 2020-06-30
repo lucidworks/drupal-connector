@@ -107,6 +107,13 @@ public class JsonContentFetcher implements ContentFetcher {
         }
     }
 
+    private String normalizeUrl(String initialUrl) {
+        String normalizedUrl = initialUrl.endsWith("/") ?
+                initialUrl.substring(0, initialUrl.length() - 1) : initialUrl;
+
+        return normalizedUrl;
+    }
+
     private boolean logout() {
         return drupalOkHttp.logout(getDrupalLogoutUrl(), drupalLoginResponse);
     }
@@ -116,14 +123,14 @@ public class JsonContentFetcher implements ContentFetcher {
     }
 
     private String getDrupalContentEntryUrl() {
-        return getDrupalUrl() + connectorConfig.properties().getDrupalContentEntryPath();
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getDrupalContentEntryPath());
     }
 
     private String getDrupalLoginUrl() {
-        return getDrupalUrl() + connectorConfig.properties().getLoginPath();
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getLoginPath());
     }
 
     private String getDrupalLogoutUrl() {
-        return getDrupalUrl() + connectorConfig.properties().getLogoutPath();
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getLogoutPath());
     }
 }

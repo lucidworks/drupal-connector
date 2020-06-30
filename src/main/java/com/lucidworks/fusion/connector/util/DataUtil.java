@@ -111,32 +111,10 @@ public final class DataUtil {
             Map<String, Object> objectMap = new HashMap<>();
             TopLevelJsonapi topLevelJsonapi = topLevelJsonapiMap.get(url);
 
-            if (topLevelJsonapi.getData() != null || topLevelJsonapi.getData().length > 0) {
-
+            if (topLevelJsonapi.getData() != null) {
                 int i = 1;
                 for (Data data : topLevelJsonapi.getData()) {
-                    Map<String, Object> dataMap = new HashMap<>();
-
-                    dataMap.put("data_id", DataUtil.getDataId(data));
-                    dataMap.put("data_type", DataUtil.getDataType(data));
-                    dataMap.put("data_links", DataUtil.getDataLinks(data));
-
-                    dataMap.put("attribute_drupal_internal__nid", DataUtil.getDataAttributeDrupalInternalNid(data));
-                    dataMap.put("attribute_drupal_internal__vid", DataUtil.getDataAttributeDrupalInternalVid(data));
-                    dataMap.put("attribute_langcode", DataUtil.getDataAttributeLangcode(data));
-                    dataMap.put("attribute_revision_timestamp", DataUtil.getDataAttributeRevisionTimestamp(data));
-                    dataMap.put("attribute_revision_log", DataUtil.getDataAttributeRevisionLog(data));
-                    dataMap.put("attribute_status", DataUtil.getDataAttributeStatus(data));
-                    dataMap.put("attribute_changed", DataUtil.getDataAttributeChanged(data));
-                    dataMap.put("attribute_defaultLangcode", DataUtil.getDataAttributeDefaultLangcode(data));
-                    dataMap.put("attribute_revision_translation_affected", DataUtil.getDataAttributeRevisionTranslationAffected(data));
-                    dataMap.put("attribute_title", DataUtil.getDataAttributeTitle(data));
-                    dataMap.put("attribute_path", DataUtil.getDataAttributePath(data));
-                    dataMap.put("attribute_body_value", DataUtil.getDataAttributeBody(data));
-                    dataMap.put("attribute_fields", DataUtil.getDataAttributeFields(data));
-
-                    dataMap.put("relationships_fields", DataUtil.getDataRelationships(data));
-
+                    Map<String, Object> dataMap = prepareDataMap(data);
                     objectMap.put("data_" + i++, dataMap.values());
                 }
 
@@ -150,5 +128,31 @@ public final class DataUtil {
         }
 
         return allObjectsMap;
+    }
+
+    private static Map<String, Object> prepareDataMap(Data data) {
+        Map<String, Object> dataMap = new HashMap<>();
+
+        dataMap.put("data_id", DataUtil.getDataId(data));
+        dataMap.put("data_type", DataUtil.getDataType(data));
+        dataMap.put("data_links", DataUtil.getDataLinks(data));
+
+        dataMap.put("attribute_drupal_internal__nid", DataUtil.getDataAttributeDrupalInternalNid(data));
+        dataMap.put("attribute_drupal_internal__vid", DataUtil.getDataAttributeDrupalInternalVid(data));
+        dataMap.put("attribute_langcode", DataUtil.getDataAttributeLangcode(data));
+        dataMap.put("attribute_revision_timestamp", DataUtil.getDataAttributeRevisionTimestamp(data));
+        dataMap.put("attribute_revision_log", DataUtil.getDataAttributeRevisionLog(data));
+        dataMap.put("attribute_status", DataUtil.getDataAttributeStatus(data));
+        dataMap.put("attribute_changed", DataUtil.getDataAttributeChanged(data));
+        dataMap.put("attribute_defaultLangcode", DataUtil.getDataAttributeDefaultLangcode(data));
+        dataMap.put("attribute_revision_translation_affected", DataUtil.getDataAttributeRevisionTranslationAffected(data));
+        dataMap.put("attribute_title", DataUtil.getDataAttributeTitle(data));
+        dataMap.put("attribute_path", DataUtil.getDataAttributePath(data));
+        dataMap.put("attribute_body_value", DataUtil.getDataAttributeBody(data));
+        dataMap.put("attribute_fields", DataUtil.getDataAttributeFields(data));
+
+        dataMap.put("relationships_fields", DataUtil.getDataRelationships(data));
+
+        return dataMap;
     }
 }
