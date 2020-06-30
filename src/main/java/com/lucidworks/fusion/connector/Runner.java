@@ -14,7 +14,7 @@ import java.util.Map;
 public class Runner {
 
     public static void main(String[] args) {
-        String baseUrl = "http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com";
+        String baseUrl = "http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/";
         ObjectMapper mapper = new ObjectMapper();
 
         DrupalOkHttp drupalOkHttp = new DrupalOkHttp(mapper);
@@ -22,9 +22,9 @@ public class Runner {
 
         DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest("authenticated", "authenticated");
 
-        DrupalLoginResponse drupalLoginResponse = drupalOkHttp.loginResponse(baseUrl + "/user/login", drupalLoginRequest);
+        DrupalLoginResponse drupalLoginResponse = drupalOkHttp.loginResponse(normalizeUrl(baseUrl)  + normalizeUrl("/user/login"), drupalLoginRequest);
 
-        ConnectorService connectorService = new ConnectorService(baseUrl + "/en/fusion/node/article", new DrupalLoginResponse(), contentService, mapper);
+        ConnectorService connectorService = new ConnectorService(normalizeUrl(baseUrl) + normalizeUrl("/en/fusion/node/article/"), new DrupalLoginResponse(), contentService, mapper);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
@@ -32,16 +32,24 @@ public class Runner {
 
         Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
 
-        objectMap.forEach((url, data) -> {
-            System.out.println("**************************************************************************************");
-            System.out.println("**************************************************************************************");
-            System.out.println(data.toString());
-//            data.forEach((k, v) -> {
-//                System.out.println(k + " :: " + v.toString());
-//            });
+//        objectMap.forEach((url, data) -> {
+//            System.out.println("**************************************************************************************");
+//            System.out.println("**************************************************************************************");
+//            System.out.println(data.toString());
+////            data.forEach((k, v) -> {
+////                System.out.println(k + " :: " + v.toString());
+////            });
+//
+//        });
 
-        });
+        System.out.println("Logout is successful: " + drupalOkHttp.logout(normalizeUrl(baseUrl) + "/user/logout", drupalLoginResponse));
+    }
 
-        //System.out.println("Logout is successful: " + drupalOkHttp.logout(baseUrl + "/user/logout", drupalLoginResponse));
+
+    private static String normalizeUrl(String initialUrl) {
+        String normalizedUrl = initialUrl.endsWith("/") ?
+                initialUrl.substring(0, initialUrl.length() - 1) : initialUrl;
+
+        return normalizedUrl;
     }
 }
