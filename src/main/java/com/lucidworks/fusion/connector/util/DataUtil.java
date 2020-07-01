@@ -112,10 +112,11 @@ public final class DataUtil {
             TopLevelJsonapi topLevelJsonapi = topLevelJsonapiMap.get(url);
 
             if (topLevelJsonapi.getData() != null) {
-                int i = 1;
+                int i = 0;
                 for (Data data : topLevelJsonapi.getData()) {
                     Map<String, Object> dataMap = prepareDataMap(data);
-                    objectMap.put("data_" + i++, dataMap.values());
+                    objectMap.put("data_key_" + ++i, dataMap.keySet().toArray());
+                    objectMap.put("data_value_" + i, dataMap.values().toArray());
                 }
 
                 objectMap.put("links", DataUtil.getLinks(topLevelJsonapi));
@@ -152,7 +153,18 @@ public final class DataUtil {
         dataMap.put("attribute_fields", DataUtil.getDataAttributeFields(data));
 
         dataMap.put("relationships_fields", DataUtil.getDataRelationships(data));
+        dataMap.put("html_link", DataUtil.getDataHtmlLink(data));
 
         return dataMap;
+    }
+
+    public static String getDataHtmlLink(Data data) {
+        String htmlLink = "";
+
+        if (data.getLinks() != null && data.getLinks().size() > 0) {
+            htmlLink = data.getLinks().get("html") != null ? data.getLinks().get("html").getHref() : "";
+        }
+
+        return htmlLink;
     }
 }

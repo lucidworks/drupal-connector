@@ -20,7 +20,8 @@ import java.util.Collection;
 @Slf4j
 public class ContentService {
 
-    private final String SELF_LINK = "self";
+    private static final String SELF_LINK = "self";
+    private static final String HTML_LINK = "html";
 
     private final ObjectMapper mapper;
     private Map<String, TopLevelJsonapi> topLevelJsonapiDataMap;
@@ -65,7 +66,7 @@ public class ContentService {
                         Collection<RelationshipFields> relationshipFields = data.getRelationships().getFields().values();
                         relationshipFields.forEach(fields -> {
                             fields.getLinks().forEach((linkTag, linkHref) -> {
-                                if (!linkTag.equals(SELF_LINK)) {
+                                if (!linkTag.equals(SELF_LINK) && !linkTag.equals(HTML_LINK)) {
                                     links.add(linkHref.getHref());
                                 }
                             });
