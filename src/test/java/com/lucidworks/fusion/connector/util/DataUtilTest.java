@@ -45,8 +45,8 @@ public class DataUtilTest {
 
         assertEquals("Meta(Links=null, omitted={detail=Detail, links={help={href=https://www.drupal.org}}})", objectMap.get("meta"));
         assertEquals("{self=LinkHref(href=http://s5ee7c4bb7c413wcrxueduzw.devcloud.acquia-sites.com/en/fusion/node/page)}", objectMap.get("links"));
-        assertEquals("No extra info", objectMap.get("included"));
-        assertEquals("No Errors", objectMap.get("errors"));
+        assertEquals("", objectMap.get("included"));
+        assertEquals("", objectMap.get("errors"));
 
     }
 
