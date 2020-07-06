@@ -27,9 +27,8 @@ public final class DataUtil {
             TopLevelJsonapi topLevelJsonapi = topLevelJsonapiMap.get(url);
 
             if (topLevelJsonapi.getData() != null) {
-                int i = 0;
                 for (Data data : topLevelJsonapi.getData()) {
-                    Map<String, Object> dataMap = prepareDataMap(data, ++i);
+                    Map<String, Object> dataMap = prepareDataMap(data);
                     if (dataMap.get("html.link") != null) {
                         allObjectsMap.put(dataMap.get("html.link").toString(), dataMap);
                     }
@@ -40,7 +39,7 @@ public final class DataUtil {
         return allObjectsMap;
     }
 
-    private static Map<String, Object> prepareDataMap(Data data, int i) {
+    private static Map<String, Object> prepareDataMap(Data data) {
         Map<String, Object> dataMap = new HashMap<>();
 
         if (!DataUtil.getDataId(data).isEmpty()) {
@@ -93,15 +92,15 @@ public final class DataUtil {
         }
 
         if (data.getAttributes().getBody() != null) {
-            dataMap.putAll(DataUtil.getDataAttributeBody(data, i));
+            dataMap.putAll(DataUtil.getDataAttributeBody(data));
         }
 
         if (!data.getAttributes().getFields().isEmpty()) {
-            dataMap.putAll(DataUtil.getDataAttributeFields(data, i));
+            dataMap.putAll(DataUtil.getDataAttributeFields(data));
         }
 
         if (!data.getRelationships().getFields().isEmpty()) {
-            dataMap.putAll(DataUtil.getDataRelationships(data, i));
+            dataMap.putAll(DataUtil.getDataRelationships(data));
         }
 
         if (!DataUtil.getDataHtmlLink(data).isEmpty()) {
@@ -167,7 +166,7 @@ public final class DataUtil {
         return data.getAttributes().getPath() != null ? data.getAttributes().getPath().toString() : "";
     }
 
-    private static Map<String, Object> getDataAttributeBody(Data data, int i) {
+    private static Map<String, Object> getDataAttributeBody(Data data) {
         Map<String, Object> bodyFields = new HashMap<>();
 
         if (data.getAttributes().getBody().getValue() != null) {
@@ -189,21 +188,21 @@ public final class DataUtil {
         return bodyFields;
     }
 
-    private static Map<String, Object> getDataAttributeFields(Data data, int i) {
+    private static Map<String, Object> getDataAttributeFields(Data data) {
         Map<String, Object> fieldsMap = new HashMap<>();
 
         for (String key : data.getAttributes().getFields().keySet()) {
-            fieldsMap.put(key + "", data.getAttributes().getFields().get(key));
+            fieldsMap.put(key, data.getAttributes().getFields().get(key));
         }
 
         return fieldsMap;
     }
 
-    private static Map<String, Object> getDataRelationships(Data data, int i) {
+    private static Map<String, Object> getDataRelationships(Data data) {
         Map<String, Object> fieldsMap = new HashMap<>();
 
         for (String key : data.getRelationships().getFields().keySet()) {
-            fieldsMap.put(key + "", data.getRelationships().getFields().get(key));
+            fieldsMap.put(key, data.getRelationships().getFields().get(key));
         }
 
         return fieldsMap;
