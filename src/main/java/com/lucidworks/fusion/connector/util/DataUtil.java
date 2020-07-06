@@ -3,8 +3,10 @@ package com.lucidworks.fusion.connector.util;
 import com.lucidworks.fusion.connector.model.Data;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Util class to extract the content of every field from a Drupal page.
@@ -29,6 +31,7 @@ public final class DataUtil {
             if (topLevelJsonapi.getData() != null) {
                 for (Data data : topLevelJsonapi.getData()) {
                     Map<String, Object> dataMap = prepareDataMap(data);
+                    dataMap = prepareRelationshipFields(dataMap, topLevelJsonapiMap, data);
                     if (dataMap.get("html.link") != null) {
                         allObjectsMap.put(dataMap.get("html.link").toString(), dataMap);
                     }
@@ -37,6 +40,80 @@ public final class DataUtil {
         }
 
         return allObjectsMap;
+    }
+
+    private static Map<String, Object> prepareRelationshipFields(Map<String, Object> dataMap, Map<String, TopLevelJsonapi> topLevelJsonapiMap, Data currentData) {
+
+        String tagsUrl = getRelatedUrl(currentData, "tags");
+        String categoryUrl = getRelatedUrl(currentData, "category");
+        String imageUrl = getRelatedUrl(currentData, "image");
+
+        if (!tagsUrl.isEmpty() && topLevelJsonapiMap.get(tagsUrl) != null && topLevelJsonapiMap.get(tagsUrl).getData() != null) {
+
+            List<String> tags = new ArrayList<>();
+
+            for (Data data : topLevelJsonapiMap.get(tagsUrl).getData()) {
+                tags.add(data.getAttributes().getName());
+            }
+
+            if (!tags.isEmpty()) {
+                dataMap.put("tags", tags);
+            }
+        }
+
+        if (!categoryUrl.isEmpty() && topLevelJsonapiMap.get(categoryUrl) != null && topLevelJsonapiMap.get(categoryUrl).getData() != null) {
+            List<String> category = new ArrayList<>();
+
+            for (Data data : topLevelJsonapiMap.get(categoryUrl).getData()) {
+                category.add(data.getAttributes().getName());
+            }
+
+            if (!category.isEmpty()) {
+                dataMap.put("category", category);
+            }
+        }
+
+        if (!imageUrl.isEmpty() && topLevelJsonapiMap.get(imageUrl) != null && topLevelJsonapiMap.get(imageUrl).getData() != null) {
+            List<String> images = new ArrayList<>();
+
+            for (Data data : topLevelJsonapiMap.get(imageUrl).getData()) {
+
+                String image2Url = getRelatedUrl(data, "image");
+
+                if (image2Url != null && topLevelJsonapiMap.get(image2Url) != null && topLevelJsonapiMap.get(image2Url).getData() != null) {
+                    Data[] currentDataList = topLevelJsonapiMap.get(image2Url).getData();
+                    for (Data currentStepData : currentDataList) {
+                        if (currentStepData.getAttributes().getUri() != null) {
+                            images.add(currentStepData.getAttributes().getUri().getUrl());
+                        }
+                    }
+                } else if (data.getAttributes().getUri()!= null){
+                    images.add(data.getAttributes().getUri().getUrl());
+                }
+            }
+
+            if (!images.isEmpty()) {
+                dataMap.put("image", images);
+            }
+        }
+
+        return dataMap;
+    }
+
+    private static String getRelatedUrl(Data data, String requiredValue) {
+        String url = "";
+
+        if (data.getRelationships() != null) {
+            for (String keySet : data.getRelationships().getFields().keySet()) {
+                if (keySet.contains(requiredValue)) {
+                    if (data.getRelationships().getFields().get(keySet).getLinks().get("related") != null) {
+                        url = data.getRelationships().getFields().get(keySet).getLinks().get("related").getHref();
+                    }
+                }
+            }
+        }
+
+        return url;
     }
 
     private static Map<String, Object> prepareDataMap(Data data) {
@@ -191,9 +268,22 @@ public final class DataUtil {
     private static Map<String, Object> getDataAttributeFields(Data data) {
         Map<String, Object> fieldsMap = new HashMap<>();
 
-        for (String key : data.getAttributes().getFields().keySet()) {
-            fieldsMap.put(key, data.getAttributes().getFields().get(key));
+        if (data.getAttributes() != null && data.getAttributes().getFields() != null) {
+            for (String key : data.getAttributes().getFields().keySet()) {
+                if (data.getAttributes().getFields().get(key) != null) {
+                    Object fieldObject = data.getAttributes().getFields().get(key);
+                    if (fieldObject instanceof Map<?,?>) {
+                        Map<String, Object> fieldObjectMap = Map.class.cast(fieldObject);
+                        for (String fieldObjectKey : fieldObjectMap.keySet()) {
+                            fieldsMap.put(key + "_" + fieldObjectKey, fieldObjectMap.get(fieldObjectKey));
+                        }
+                    } else {
+                        fieldsMap.put(key, data.getAttributes().getFields().get(key));
+                    }
+                }
+            }
         }
+
 
         return fieldsMap;
     }
