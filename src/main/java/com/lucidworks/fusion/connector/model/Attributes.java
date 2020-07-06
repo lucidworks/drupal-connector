@@ -41,6 +41,9 @@ public class Attributes implements Serializable {
     private String title;
     private AttributeBody body;
 
+    private String name;
+    private Uri uri;
+
     private Map<String, Object> fields = new HashMap<>();
 
     @JsonAnySetter
