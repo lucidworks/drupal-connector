@@ -1,19 +1,22 @@
 package com.lucidworks.fusion.connector.fetcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.config.ContentConfig;
-import com.lucidworks.fusion.connector.content.DrupalContent;
-import com.lucidworks.fusion.connector.content.DrupalContentEntry;
 import com.lucidworks.fusion.connector.exception.ServiceException;
+import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
-import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
+import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import com.lucidworks.fusion.connector.util.DataUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,59 +25,36 @@ import java.util.Map;
 @Slf4j
 public class JsonContentFetcher implements ContentFetcher {
 
-    private final static String LAST_JOB_RUN_DATE_TIME = "lastJobRunDateTime";
-    private final static String ENTRY_LAST_UPDATED = "lastUpdatedEntry";
-
     private final ContentConfig connectorConfig;
     private ContentService contentService;
     private ConnectorService connectorService;
+    private ObjectMapper objectMapper;
+    private DrupalOkHttp drupalOkHttp;
+    private DrupalLoginResponse drupalLoginResponse;
 
     @Inject
     public JsonContentFetcher(
-            ContentConfig connectorConfig,
-            ContentService contentService
+            ContentConfig connectorConfig
     ) {
         this.connectorConfig = connectorConfig;
-        this.contentService = contentService;
-        connectorService = new ConnectorService(getDrupalUrl(), null, contentService);
-    }
-
-    private String getDrupalUrl() {
-        return connectorConfig.properties().getUrl();
-    }
-
-    private DrupalLoginResponse getDrupalLoginResponse() {
-        String username = connectorConfig.properties().getUsername();
-        String password = connectorConfig.properties().getPassword();
-
-        DrupalLoginResponse drupalLoginResponse = contentService.login(getDrupalUrl(), username, password);
-
-        return drupalLoginResponse;
-
+        this.objectMapper = new ObjectMapper();
+        this.drupalOkHttp = new DrupalOkHttp(objectMapper);
+        this.contentService = new ContentService(objectMapper);
+        this.drupalLoginResponse = getDrupalLoginResponse();
+        this.connectorService = new ConnectorService(getDrupalContentEntryUrl(), this.drupalLoginResponse, contentService, objectMapper);
     }
 
     @Override
     public FetchResult fetch(FetchContext fetchContext) {
+
+        Map<String, TopLevelJsonapi> topLevelJsonapiMap = new HashMap<>();
+        Map<String, String> contentMap = new HashMap<>();
+
         try {
-            FetchInput input = fetchContext.getFetchInput();
-            Map<String, Object> metaData = input.getMetadata();
+            contentMap = connectorService.prepareDataToUpload();
 
-            Map<String, String> contentMap = connectorService.prepareDataToUpload();
+            topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
-            contentMap.forEach((url, content) -> {
-
-                fetchContext.newCandidate(url)
-                        .metadata(m -> {
-                            m.setString("content", content);
-                        }).emit();
-
-                fetchContext.newDocument(input.getId())
-                        .fields(f -> {
-                            f.setString("content_s", (String) metaData.get("content"));
-                            f.setLong("lastUpdatedEntry_l", ZonedDateTime.now().toEpochSecond());
-                        })
-                        .emit();
-            });
         } catch (ServiceException e) {
             String message = "Failed to parse content from Drupal!";
             log.error(message, e);
@@ -83,21 +63,74 @@ public class JsonContentFetcher implements ContentFetcher {
                     .emit();
         }
 
+        if (contentMap.keySet().size() == topLevelJsonapiMap.keySet().size()) {
+
+            Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+
+            for (String key : objectMap.keySet()) {
+                Map<String, Object> pageContentMap = objectMap.get(key);
+                fetchContext.newDocument(key)
+                        .fields(field -> {
+                            field.setString("url", key);
+                            field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
+                            field.merge(pageContentMap);
+                        })
+                        .emit();
+            }
+        } else {
+            String message = "Failed to store all Drupal Content.";
+            log.error(message);
+            fetchContext.newError(fetchContext.getFetchInput().getId())
+                    .withError(message)
+                    .emit();
+        }
+
+        logout();
+
         return fetchContext.newResult();
     }
 
-    private void emitDrupalCandidates(DrupalContent feed, FetchContext fetchContext, long lastJobRunDateTime) {
-        Map<String, DrupalContentEntry> entryMap = feed.getEntries();
-        entryMap.forEach((id, entry) -> {
-            fetchContext.newCandidate(id)
-                    .metadata(m -> {
-                        m.setString("content", entry.getContent());
-                        // add last time when entry was modified
-                        m.setLong(ENTRY_LAST_UPDATED, entry.getLastUpdated());
-                        // add 'lastJobRunDateTime'.
-                        m.setLong(LAST_JOB_RUN_DATE_TIME, lastJobRunDateTime);
-                    })
-                    .emit();
-        });
+    private DrupalLoginResponse getDrupalLoginResponse() {
+        String username = connectorConfig.properties().getUsername();
+        String password = connectorConfig.properties().getPassword();
+
+
+        if (username != null && !username.isEmpty() &&
+                password != null && !password.isEmpty()) {
+            DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
+
+            drupalLoginResponse = drupalOkHttp.loginResponse(getDrupalLoginUrl(), drupalLoginRequest);
+
+            return drupalLoginResponse;
+        } else {
+            return new DrupalLoginResponse();
+        }
+    }
+
+    private String normalizeUrl(String initialUrl) {
+        String normalizedUrl = initialUrl.endsWith("/") ?
+                initialUrl.substring(0, initialUrl.length() - 1) : initialUrl;
+
+        return normalizedUrl;
+    }
+
+    private boolean logout() {
+        return drupalOkHttp.logout(getDrupalLogoutUrl(), drupalLoginResponse);
+    }
+
+    private String getDrupalUrl() {
+        return connectorConfig.properties().getUrl();
+    }
+
+    private String getDrupalContentEntryUrl() {
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getDrupalContentEntryPath());
+    }
+
+    private String getDrupalLoginUrl() {
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getLoginPath());
+    }
+
+    private String getDrupalLogoutUrl() {
+        return normalizeUrl(getDrupalUrl()) + normalizeUrl(connectorConfig.properties().getLogoutPath());
     }
 }

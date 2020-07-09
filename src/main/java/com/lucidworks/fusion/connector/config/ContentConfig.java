@@ -29,7 +29,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Drupal URL",
-                description = "Content URL location. If empty, the connector will generate entries (see 'Generate Properties')",
+                description = "Page URL.",
                 required = true,
                 order = 1
         )
@@ -38,8 +38,7 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Username for login",
-                description = "Username to login into drupal to be able to fetch content from it",
-                required = true,
+                description = "Username to login into drupal to be able to fetch content from it.",
                 order = 2
         )
         @StringSchema
@@ -47,12 +46,38 @@ public interface ContentConfig extends ConnectorConfig<ContentConfig.Properties>
 
         @Property(
                 title = "Password for login",
-                description = "Password to login into drupal to be able to fetch content from it",
-                required = true,
+                description = "Password to login into drupal to be able to fetch content from it.",
                 order = 3
         )
-        @StringSchema
+        @StringSchema()
         String getPassword();
+
+        @Property(
+                title = "Login path",
+                description = "Login path.",
+                required = true,
+                order = 4
+        )
+        @StringSchema(defaultValue = "/user/login")
+        String getLoginPath();
+
+        @Property(
+                title = "Logout path",
+                description = "Logout path.",
+                required = true,
+                order = 5
+        )
+        @StringSchema(defaultValue = "/user/logout")
+        String getLogoutPath();
+
+        @Property(
+                title = "Drupal Content entry path",
+                description = "Drupal Content entry path from where the crawling should start.",
+                required = true,
+                order = 6
+        )
+        @StringSchema(defaultValue = "/en/fusion")
+        String getDrupalContentEntryPath();
 
     }
 

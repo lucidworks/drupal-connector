@@ -1,14 +1,16 @@
 package com.lucidworks.fusion.connector.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
 import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
+import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Drupal Content Crawler can create a Map with all links and content from them.
@@ -22,6 +24,7 @@ public class DrupalContentCrawler {
     private DrupalLoginResponse loggedInUser;
     private DrupalOkHttp drupalOkHttp;
     private ContentService contentService;
+    private Map<String, TopLevelJsonapi> topLevelJsonapiMap;
 
     /**
      * Constructor for Crawler
@@ -30,12 +33,14 @@ public class DrupalContentCrawler {
      * @param loggedInUser   the loggedInUser with JWT token inside
      * @param contentService the content service class
      */
-    public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService) {
-        this.drupalOkHttp = new DrupalOkHttp();
+    public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService,
+                                ObjectMapper mapper) {
+        this.drupalOkHttp = new DrupalOkHttp(mapper);
         this.loggedInUser = loggedInUser;
 
         this.drupalUrls = new ArrayList<>(Arrays.asList(drupalUrl));
         this.visitedUrls = new HashMap<>();
+        this.topLevelJsonapiMap = new HashMap<>();
 
         this.contentService = contentService;
     }
@@ -47,6 +52,7 @@ public class DrupalContentCrawler {
     public void startCrawling() {
         log.info("Enter startCrawling method.");
 
+        processFinished = false;
         Map<String, String> currentStepContent = new HashMap<>();
         List<String> urlsVisitedInCurrentStep = new ArrayList<>();
         try {
@@ -64,7 +70,10 @@ public class DrupalContentCrawler {
                 currentStepContent.forEach((url, content) -> {
                     drupalUrls.addAll(contentService.collectLinksFromDrupalContent(url, content));
                     visitedUrls.put(url, content);
+                    topLevelJsonapiMap.putAll(contentService.getTopLevelJsonapiDataMap());
                 });
+
+                drupalUrls.removeIf(drupalUrl -> visitedUrls.containsKey(drupalUrl));
 
                 urlsVisitedInCurrentStep.clear();
                 currentStepContent.clear();
