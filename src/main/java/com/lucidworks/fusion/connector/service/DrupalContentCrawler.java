@@ -1,8 +1,6 @@
 package com.lucidworks.fusion.connector.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.exception.ServiceException;
-import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,28 +19,23 @@ public class DrupalContentCrawler {
     private boolean processFinished = false;
     private List<String> drupalUrls;
     private Map<String, String> visitedUrls;
-    private DrupalLoginResponse loggedInUser;
-    private DrupalOkHttp drupalOkHttp;
+    private DrupalHttpClient drupalHttpClient;
     private ContentService contentService;
     private Map<String, TopLevelJsonapi> topLevelJsonapiMap;
 
     /**
      * Constructor for Crawler
      *
-     * @param drupalUrl      the url for the first GET request
-     * @param loggedInUser   the loggedInUser with JWT token inside
-     * @param contentService the content service class
+     * @param drupalUrl        the url for the first GET request
+     * @param drupalHttpClient the Http Client object
+     * @param contentService   the content service class
      */
-    public DrupalContentCrawler(String drupalUrl, DrupalLoginResponse loggedInUser, ContentService contentService,
-                                ObjectMapper mapper) {
-        this.drupalOkHttp = new DrupalOkHttp(mapper);
-        this.loggedInUser = loggedInUser;
-
+    public DrupalContentCrawler(String drupalUrl, ContentService contentService, DrupalHttpClient drupalHttpClient) {
         this.drupalUrls = new ArrayList<>(Arrays.asList(drupalUrl));
         this.visitedUrls = new HashMap<>();
         this.topLevelJsonapiMap = new HashMap<>();
-
         this.contentService = contentService;
+        this.drupalHttpClient = drupalHttpClient;
     }
 
     /**
@@ -58,7 +51,7 @@ public class DrupalContentCrawler {
         try {
             do {
                 drupalUrls.stream().forEach(url -> {
-                    String responseBody = drupalOkHttp.getDrupalContent(url, loggedInUser);
+                    String responseBody = drupalHttpClient.getContent(url);
                     if (responseBody != null) {
                         currentStepContent.put(url, responseBody);
                         urlsVisitedInCurrentStep.add(url);

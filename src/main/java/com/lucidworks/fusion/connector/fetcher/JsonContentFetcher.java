@@ -3,14 +3,12 @@ package com.lucidworks.fusion.connector.fetcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucidworks.fusion.connector.config.ContentConfig;
 import com.lucidworks.fusion.connector.exception.ServiceException;
-import com.lucidworks.fusion.connector.model.DrupalLoginRequest;
-import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import com.lucidworks.fusion.connector.model.TopLevelJsonapi;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
 import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
-import com.lucidworks.fusion.connector.service.DrupalOkHttp;
+import com.lucidworks.fusion.connector.service.DrupalHttpClient;
 import com.lucidworks.fusion.connector.util.DataUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,8 +27,7 @@ public class JsonContentFetcher implements ContentFetcher {
     private ContentService contentService;
     private ConnectorService connectorService;
     private ObjectMapper objectMapper;
-    private DrupalOkHttp drupalOkHttp;
-    private DrupalLoginResponse drupalLoginResponse;
+    private DrupalHttpClient drupalHttpClient;
 
     @Inject
     public JsonContentFetcher(
@@ -38,10 +35,9 @@ public class JsonContentFetcher implements ContentFetcher {
     ) {
         this.connectorConfig = connectorConfig;
         this.objectMapper = new ObjectMapper();
-        this.drupalOkHttp = new DrupalOkHttp(objectMapper);
+        this.drupalHttpClient = new DrupalHttpClient();
         this.contentService = new ContentService(objectMapper);
-        this.drupalLoginResponse = getDrupalLoginResponse();
-        this.connectorService = new ConnectorService(getDrupalContentEntryUrl(), this.drupalLoginResponse, contentService, objectMapper);
+        this.connectorService = new ConnectorService(getDrupalContentEntryUrl(), contentService, drupalHttpClient);
     }
 
     @Override
@@ -50,9 +46,10 @@ public class JsonContentFetcher implements ContentFetcher {
         Map<String, TopLevelJsonapi> topLevelJsonapiMap = new HashMap<>();
         Map<String, String> contentMap = new HashMap<>();
 
+        doLogin();
+
         try {
             contentMap = connectorService.prepareDataToUpload();
-
             topLevelJsonapiMap = contentService.getTopLevelJsonapiDataMap();
 
         } catch (ServiceException e) {
@@ -85,25 +82,13 @@ public class JsonContentFetcher implements ContentFetcher {
                     .emit();
         }
 
-        logout();
-
         return fetchContext.newResult();
     }
 
-    private DrupalLoginResponse getDrupalLoginResponse() {
-        String username = connectorConfig.properties().getUsername();
-        String password = connectorConfig.properties().getPassword();
-
-
-        if (username != null && !username.isEmpty() &&
-                password != null && !password.isEmpty()) {
-            DrupalLoginRequest drupalLoginRequest = new DrupalLoginRequest(username, password);
-
-            drupalLoginResponse = drupalOkHttp.loginResponse(getDrupalLoginUrl(), drupalLoginRequest);
-
-            return drupalLoginResponse;
-        } else {
-            return new DrupalLoginResponse();
+    private void doLogin() {
+        String username = connectorConfig.properties().getUsername(), password = connectorConfig.properties().getPassword();
+        if (username != null && password != null) {
+            drupalHttpClient.doLogin(getDrupalLoginUrl(), username, password);
         }
     }
 
@@ -112,10 +97,6 @@ public class JsonContentFetcher implements ContentFetcher {
                 initialUrl.substring(0, initialUrl.length() - 1) : initialUrl;
 
         return normalizedUrl;
-    }
-
-    private boolean logout() {
-        return drupalOkHttp.logout(getDrupalLogoutUrl(), drupalLoginResponse);
     }
 
     private String getDrupalUrl() {
