@@ -17,7 +17,7 @@ public class Runner {
 
         DrupalHttpClient drupalHttpClient = new DrupalHttpClient();
 
-        String loginResponse = drupalHttpClient.doLogin("http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com/user/login", "authenticated", "authenticated");
+        String loginResponse = drupalHttpClient.doLogin("http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com/user/login", "admin", "Admin@Fusion");
 
         ContentService contentService = new ContentService(mapper);
 
