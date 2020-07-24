@@ -46,7 +46,7 @@ Plugin-Class: com.lucidworks.fusion.connector.ConnectorPlugin
 ```
 
 ### The Fetcher
-The **_JsonContentFetcher_** class provides methods that define how data is fetched and indexed for Fusion Server. The data is fetched from Drupal using the OkHttp Client to call the request. But before the actual request is done to get all the content a login request is needed. There are different types of users that can see the entire content or just a particular part from it.
+The **_JsonContentFetcher_** class provides methods that define how data is fetched and indexed for Fusion Server. The data is fetched from Drupal using HttpUrlConnection to call the request. But before the actual request is done to get all the content a login request is needed. There are different types of users that can see the entire content or just a particular part from it.
  From the login response the header _Set-Cookie_ is taken and used as a header for the next requests.
  
 ### Crawling process
@@ -64,11 +64,8 @@ JSON:API requires use of the JSON:API media type `application/vnd.api+json` for 
 ## Dependencies
 The most important dependency is the SDK connector. The SDK connector used in this project can be found [here](https://github.com/lucidworks/connectors-sdk-resources/tree/master/java-sdk).
 
-Beside this another needed dependency is a HTTP client in order to connect to a third-party REST API, in this project a Drupal Module.
-
-### OkHttp
-OKHttp is a HTTP client that is efficient by default. It supports HTTP/2 and allows all requests to the same host to share a socket. It's connection pooling reduces request latency. The response caching avoids the network completely for repeat requests.
-Using OkHttp is easy. Its request/response API is designed with fluent builders and immutability. It supports both synchronous blocking calls and async calls with callbacks.
+### Java Core HttpUrlConnection
+The HttpUrlConnection class allows us to perform basic HTTP requests without the use of any additional libraries. All the classes that are needed are contained in the **java.net** package.
 
 ### Lombok 
 Lombok is a java library that automatically plugs into your editor and build tools and replaces using annotations most of the code regarding getters, setters and even constructors.
