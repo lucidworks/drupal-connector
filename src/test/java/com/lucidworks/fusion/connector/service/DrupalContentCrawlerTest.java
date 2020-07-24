@@ -1,7 +1,5 @@
 package com.lucidworks.fusion.connector.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lucidworks.fusion.connector.model.DrupalLoginResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,13 +30,7 @@ public class DrupalContentCrawlerTest {
     private ContentService contentService;
 
     @Mock
-    private DrupalLoginResponse drupalLoginResponse;
-
-    @Mock
-    private ObjectMapper mapper;
-
-    @Mock
-    private DrupalOkHttp drupalOkHttp;
+    private DrupalHttpClient drupalHttpClient;
 
     private MockitoSession mockitoSession;
 
@@ -51,7 +43,7 @@ public class DrupalContentCrawlerTest {
                 .startMocking();
         MockitoAnnotations.initMocks(this);
 
-        drupalContentCrawler = new DrupalContentCrawler(URL, drupalLoginResponse, contentService, mapper);
+        drupalContentCrawler = new DrupalContentCrawler(URL, contentService, drupalHttpClient);
     }
 
     @After
@@ -61,7 +53,7 @@ public class DrupalContentCrawlerTest {
 
     @Test
     public void testStartCrawling() {
-        when(drupalOkHttp.getDrupalContent(anyString(), any(DrupalLoginResponse.class))).thenReturn(prepareDrupalContent());
+        when(drupalHttpClient.getContent(anyString())).thenReturn(prepareDrupalContent());
         when(contentService.collectLinksFromDrupalContent(anyString(), anyString())).thenReturn(prepareListWithExpectedLinks());
         drupalContentCrawler.startCrawling();
 
@@ -110,7 +102,7 @@ public class DrupalContentCrawlerTest {
 
     @Test(expected = RuntimeException.class)
     public void testStartCrawling_throwException() {
-        when(drupalOkHttp.getDrupalContent(any(String.class), any(DrupalLoginResponse.class))).thenReturn(null);
+        when(drupalHttpClient.getContent(any(String.class))).thenReturn(null);
         doNothing().when(contentService).collectLinksFromDrupalContent(URL, prepareDrupalContent());
         drupalContentCrawler.startCrawling();
     }

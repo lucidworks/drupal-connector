@@ -19,7 +19,7 @@ public class Attributes implements Serializable {
     private Integer drupalInternalNid;
 
     @JsonProperty("drupal_internal__vid")
-    private Integer drupalInternalVid;
+    private Object drupalInternalVid;
 
     private String langcode;
 

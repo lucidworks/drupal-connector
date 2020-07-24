@@ -87,7 +87,7 @@ public final class DataUtil {
                             images.add(currentStepData.getAttributes().getUri().getUrl());
                         }
                     }
-                } else if (data.getAttributes().getUri()!= null){
+                } else if (data.getAttributes().getUri() != null) {
                     images.add(data.getAttributes().getUri().getUrl());
                 }
             }
@@ -168,15 +168,15 @@ public final class DataUtil {
             dataMap.put("path", DataUtil.getDataAttributePath(data));
         }
 
-        if (data.getAttributes().getBody() != null) {
+        if (data.getAttributes() != null && data.getAttributes().getBody() != null) {
             dataMap.putAll(DataUtil.getDataAttributeBody(data));
         }
 
-        if (!data.getAttributes().getFields().isEmpty()) {
+        if (data.getAttributes() != null && !data.getAttributes().getFields().isEmpty()) {
             dataMap.putAll(DataUtil.getDataAttributeFields(data));
         }
 
-        if (!data.getRelationships().getFields().isEmpty()) {
+        if (data.getRelationships() != null && !data.getRelationships().getFields().isEmpty()) {
             dataMap.putAll(DataUtil.getDataRelationships(data));
         }
 
@@ -272,7 +272,7 @@ public final class DataUtil {
             for (String key : data.getAttributes().getFields().keySet()) {
                 if (data.getAttributes().getFields().get(key) != null) {
                     Object fieldObject = data.getAttributes().getFields().get(key);
-                    if (fieldObject instanceof Map<?,?>) {
+                    if (fieldObject instanceof Map<?, ?>) {
                         Map<String, Object> fieldObjectMap = Map.class.cast(fieldObject);
                         for (String fieldObjectKey : fieldObjectMap.keySet()) {
                             fieldsMap.put(key + "_" + fieldObjectKey, fieldObjectMap.get(fieldObjectKey));
