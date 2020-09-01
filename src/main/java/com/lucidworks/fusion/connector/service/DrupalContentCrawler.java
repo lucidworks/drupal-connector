@@ -54,8 +54,8 @@ public class DrupalContentCrawler {
                     String responseBody = drupalHttpClient.getContent(url);
                     if (responseBody != null) {
                         currentStepContent.put(url, responseBody);
-                        urlsVisitedInCurrentStep.add(url);
                     }
+                    urlsVisitedInCurrentStep.add(url);
                 });
 
                 drupalUrls.removeAll(urlsVisitedInCurrentStep);
