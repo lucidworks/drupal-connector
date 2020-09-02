@@ -51,11 +51,11 @@ public class DrupalHttpClient {
 
                 return response.toString();
             } else {
-                log.error("Error on the request getting the content. Status-Code: " + responseCode);
+                log.error("Error on the request getting the content. Status-Code: {} from URL: {}", responseCode, url);
                 return null;
             }
         } catch (IOException e) {
-            throw new RequestException("Error on the HTTP GET request that takes the content from a URL.", e);
+            throw new RequestException("Error on the HTTP GET request that takes the content from URL: " + url, e);
         }
     }
 
