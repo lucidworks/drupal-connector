@@ -42,7 +42,7 @@ Plugin-Type: connector
 Plugin-Provider: Lucidworks
 Plugin-Version: 1.0-SNAPSHOT
 Plugin-Connectors-SDK-Version: 2.0.1
-Plugin-Class: com.lucidworks.fusion.connector.ConnectorPlugin
+Plugin-Class: lucidworks.fusion.connector.ConnectorPlugin
 ```
 
 ### The Fetcher

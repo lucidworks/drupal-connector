@@ -4,7 +4,7 @@ ext.pluginsDir = "${rootProject.buildDir}"
 apply plugin: 'java'
 apply plugin: 'idea'
 
-group 'com.lucidworks.fusion.connector'
+group 'lucidworks.fusion.connector'
 version '1.0-SNAPSHOT'
 
 compileJava {
