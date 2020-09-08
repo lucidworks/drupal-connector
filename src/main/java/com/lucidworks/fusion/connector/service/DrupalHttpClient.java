@@ -23,7 +23,7 @@ public class DrupalHttpClient {
     private String cookie = "";
 
     /**
-     * Get the content from url as String
+     * Get the content from an url and return it as a String
      *
      * @param url
      * @return The content from specified url
@@ -32,30 +32,47 @@ public class DrupalHttpClient {
         try {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            boolean redirect = false;
             con.setRequestMethod("GET");
+
             if (!cookie.isEmpty()) {
                 con.setRequestProperty("Cookie", cookie);
             }
 
             int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) { // success
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        con.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
 
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                return response.toString();
-            } else {
-                log.error("Error on the request getting the content. Status-Code: {} from URL: {}", responseCode, url);
-                return null;
+            // 3xx is redirect
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                        || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                        || responseCode == HttpURLConnection.HTTP_SEE_OTHER)
+                    redirect = true;
             }
+
+            if (redirect) {
+                // get redirect url from "location" header field
+                String newUrl = con.getHeaderField("Location");
+
+                // open the new connection again
+                con = (HttpURLConnection) new URL(newUrl).openConnection();
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            return response.toString();
+
         } catch (IOException e) {
-            throw new RequestException("Error on the HTTP GET request that takes the content from URL: " + url, e);
+            return null;
+            //TODO throw an error when it will be logged in Fusion Log Viewer
+            //throw new RequestException("Error on the HTTP GET request that takes the content from a URL.", e);
         }
     }
 
