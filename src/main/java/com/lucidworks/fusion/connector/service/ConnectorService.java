@@ -46,8 +46,8 @@ public class ConnectorService {
             }
         }
 
-        log.info("Crawling process is finished.");
         dataToUpload = drupalContentCrawler.getVisitedUrls();
+        log.info("Crawling process is finished. Uploading data: {}", dataToUpload);
 
         return dataToUpload;
     }

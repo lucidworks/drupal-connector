@@ -6,22 +6,26 @@ import com.lucidworks.fusion.connector.service.ConnectorService;
 import com.lucidworks.fusion.connector.service.ContentService;
 import com.lucidworks.fusion.connector.service.DrupalHttpClient;
 import com.lucidworks.fusion.connector.util.DataUtil;
+import org.apache.commons.collections4.MapUtils;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class Runner {
 
     public static void main(String[] args) {
-        String baseUrl = "http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com";
+        String baseUrl = "https://aws-drupal.appbase.io";
         ObjectMapper mapper = new ObjectMapper();
 
         DrupalHttpClient drupalHttpClient = new DrupalHttpClient();
 
-        String loginResponse = drupalHttpClient.doLogin("http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com/user/login", "admin", "Admin@Fusion");
+        //String loginResponse = drupalHttpClient.doLogin("https://aws-drupal.appbase.io/user/login", "user", "e8cbDwNUHfeB");
 
         ContentService contentService = new ContentService(mapper);
 
-        ConnectorService connectorService = new ConnectorService(normalizeUrl(baseUrl) + normalizeUrl("/en/fusion"), contentService, drupalHttpClient);
+        ConnectorService connectorService = new ConnectorService(normalizeUrl(baseUrl) + normalizeUrl("/fusion"), contentService, drupalHttpClient);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
@@ -29,9 +33,27 @@ public class Runner {
 
         Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
 
+        System.out.println(objectMap);
+
         for (String key : objectMap.keySet()) {
             Map<String, Object> pageContentMap = objectMap.get(key);
-            System.out.println("Key: " + key);
+            List<String> keysToRemove = new ArrayList<>();
+            for (String innerKey : pageContentMap.keySet()) {
+                Object innerValue = pageContentMap.get(innerKey);
+                if (!(innerValue instanceof Number || innerValue instanceof String ||
+                        innerValue instanceof Boolean || innerValue instanceof Date)) {
+                    System.out.println("Removing bad key/value: " + innerKey + " -> " + innerValue);
+                    keysToRemove.add(innerKey);
+                }
+            }
+            for (String keyToRemove : keysToRemove) {
+                pageContentMap.remove(keyToRemove);
+            }
+        }
+
+        for (String key : objectMap.keySet()) {
+            Map<String, Object> pageContentMap = objectMap.get(key);
+            MapUtils.debugPrint(System.out, null, objectMap);
         }
 
     }

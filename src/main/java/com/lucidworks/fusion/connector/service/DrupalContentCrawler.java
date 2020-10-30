@@ -63,6 +63,7 @@ public class DrupalContentCrawler {
                 currentStepContent.forEach((url, content) -> {
                     drupalUrls.addAll(contentService.collectLinksFromDrupalContent(url, content));
                     visitedUrls.put(url, content);
+                    log.info("Parsing content: {}", content);
                     topLevelJsonapiMap.putAll(contentService.getTopLevelJsonapiDataMap());
                 });
 

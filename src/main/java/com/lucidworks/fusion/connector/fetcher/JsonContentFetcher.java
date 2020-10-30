@@ -14,8 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Fetch the content from Drupal's pages
@@ -60,26 +59,50 @@ public class JsonContentFetcher implements ContentFetcher {
                     .emit();
         }
 
-        if (contentMap.keySet().size() == topLevelJsonapiMap.keySet().size()) {
+        try {
 
-            Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+            if (contentMap.keySet().size() == topLevelJsonapiMap.keySet().size()) {
 
-            for (String key : objectMap.keySet()) {
-                Map<String, Object> pageContentMap = objectMap.get(key);
-                fetchContext.newDocument(key)
-                        .fields(field -> {
-                            field.setString("url", key);
-                            field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
-                            field.merge(pageContentMap);
-                        })
+                Map<String, Map<String, Object>> objectMap = DataUtil.generateObjectMap(topLevelJsonapiMap);
+
+                for (String key : objectMap.keySet()) {
+                    Map<String, Object> pageContentMap = objectMap.get(key);
+                    fetchContext.newDocument(key)
+                            .fields(field -> {
+                                field.setString("url", key);
+                                field.setLong("lastUpdated", ZonedDateTime.now().toEpochSecond());
+
+                                // Check all of the data we're passing to see if anything is an invalid type
+                                List<String> keysToRemove = new ArrayList<>();
+                                for (String innerKey : pageContentMap.keySet()) {
+                                    Object innerValue = pageContentMap.get(innerKey);
+                                    if (!(innerValue instanceof Number || innerValue instanceof String ||
+                                            innerValue instanceof Boolean || innerValue instanceof Date)) {
+                                        log.warn("Removing bad key/value: " + innerKey + " -> " + innerValue);
+                                        keysToRemove.add(innerKey);
+                                    }
+                                }
+
+                                // Remove the invalid entries. This is separated to avoid corrupting the iterator
+                                for (String keyToRemove : keysToRemove) {
+                                    pageContentMap.remove(keyToRemove);
+                                }
+
+                                // Merge the cleaned data into the document
+                                field.merge(pageContentMap);
+                            })
+                            .emit();
+                }
+            } else {
+                String message = "Failed to store all Drupal Content.";
+                log.error(message);
+                fetchContext.newError(fetchContext.getFetchInput().getId())
+                        .withError(message)
                         .emit();
             }
-        } else {
-            String message = "Failed to store all Drupal Content.";
-            log.error(message);
-            fetchContext.newError(fetchContext.getFetchInput().getId())
-                    .withError(message)
-                    .emit();
+        } catch (Throwable t) {
+            log.error("Ran into exception during connector run:", t);
+            throw t;
         }
 
         return fetchContext.newResult();

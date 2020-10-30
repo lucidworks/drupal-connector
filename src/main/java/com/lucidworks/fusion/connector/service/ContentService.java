@@ -39,7 +39,7 @@ public class ContentService {
      * @return List with all the links found
      */
     public List<String> collectLinksFromDrupalContent(String url, String content) {
-        log.info("Enter collectLinksFromDrupalContent method...");
+        log.info("Enter collectLinksFromDrupalContent method for URL: {}", url);
 
         List<String> links = new ArrayList<>();
         TopLevelJsonapi topLevelJsonapi;
