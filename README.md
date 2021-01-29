@@ -4,6 +4,10 @@
 
 The Drupal Connector fetches all the content that is available on the URL provided from Drupal Module. Using an algorithm that takes all the links from every page, all the content from those pages is going to be parsed and normalised in a Fusion 5 Server instance, using the SDK connector. 
 
+## Support
+
+This is a community supported Fusion connector.
+
 ## System Diagram
 The System Diagram presents the 3 components and how are connected. Fusion is the component where the Java Connector will be uploaded as a plugin. This connector plugin will then be used as a datasource in _Index Workbench_. One of the properties that this connector expects is a URL coming from Drupal Module, from where all the content will be taken recursively and get indexed.
 
