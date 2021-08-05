@@ -12,16 +12,16 @@ import java.util.Map;
 public class Runner {
 
     public static void main(String[] args) {
-        String baseUrl = "http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com";
+        String baseUrl = "http://s5f486feac31a7bhvwhs99wd.devcloud.acquia-sites.com";
         ObjectMapper mapper = new ObjectMapper();
 
         DrupalHttpClient drupalHttpClient = new DrupalHttpClient();
 
-        String loginResponse = drupalHttpClient.doLogin("http://s5efe1a8b62a65rx9apyfzmk.devcloud.acquia-sites.com/user/login", "admin", "Admin@Fusion");
+        String loginResponse = drupalHttpClient.doLogin(baseUrl + "/user/login", "admin", "Admin@Fusion");
 
         ContentService contentService = new ContentService(mapper);
 
-        ConnectorService connectorService = new ConnectorService(normalizeUrl(baseUrl) + normalizeUrl("/en/fusion"), contentService, drupalHttpClient);
+        ConnectorService connectorService = new ConnectorService(normalizeUrl(baseUrl) + normalizeUrl("/fusion"), contentService, drupalHttpClient);
 
         Map<String, String> response = connectorService.prepareDataToUpload();
 
@@ -33,7 +33,6 @@ public class Runner {
             Map<String, Object> pageContentMap = objectMap.get(key);
             System.out.println("Key: " + key);
         }
-
     }
 
     private static String normalizeUrl(String initialUrl) {
