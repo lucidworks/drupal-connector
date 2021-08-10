@@ -92,7 +92,8 @@ public class DrupalHttpClient {
             String requestBody = objectMapper.writeValueAsString(prepareLoginBody(username, password));
             byte[] loginBody = requestBody.getBytes(StandardCharsets.UTF_8);
 
-            URL obj = new URL(url + "?_format=json");
+            //TODO ?_format=json - added if needed
+            URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
