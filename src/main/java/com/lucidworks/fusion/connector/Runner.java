@@ -12,12 +12,12 @@ import java.util.Map;
 public class Runner {
 
     public static void main(String[] args) {
-        String baseUrl = "http://s5f486feac31a7bhvwhs99wd.devcloud.acquia-sites.com";
+        String baseUrl = "https://testbenefits.bluecrossma.com";
         ObjectMapper mapper = new ObjectMapper();
 
         DrupalHttpClient drupalHttpClient = new DrupalHttpClient();
 
-        String loginResponse = drupalHttpClient.doLogin(baseUrl + "/user/login", "admin", "Admin@Fusion");
+        String loginResponse = drupalHttpClient.doLogin(baseUrl + "/user/login", "fusion", "Fusion@2021");
 
         ContentService contentService = new ContentService(mapper);
 
