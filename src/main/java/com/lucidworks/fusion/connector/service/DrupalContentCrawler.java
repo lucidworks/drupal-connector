@@ -21,7 +21,6 @@ public class DrupalContentCrawler {
     private Map<String, String> visitedUrls;
     private DrupalHttpClient drupalHttpClient;
     private ContentService contentService;
-    private Map<String, TopLevelJsonapi> topLevelJsonapiMap;
 
     /**
      * Constructor for Crawler
@@ -33,7 +32,6 @@ public class DrupalContentCrawler {
     public DrupalContentCrawler(String drupalUrl, ContentService contentService, DrupalHttpClient drupalHttpClient) {
         this.drupalUrls = new ArrayList<>(Arrays.asList(drupalUrl));
         this.visitedUrls = new HashMap<>();
-        this.topLevelJsonapiMap = new HashMap<>();
         this.contentService = contentService;
         this.drupalHttpClient = drupalHttpClient;
     }
@@ -63,7 +61,6 @@ public class DrupalContentCrawler {
                 currentStepContent.forEach((url, content) -> {
                     drupalUrls.addAll(contentService.collectLinksFromDrupalContent(url, content));
                     visitedUrls.put(url, content);
-                    topLevelJsonapiMap.putAll(contentService.getTopLevelJsonapiDataMap());
                 });
 
                 drupalUrls.removeIf(drupalUrl -> visitedUrls.containsKey(drupalUrl));
