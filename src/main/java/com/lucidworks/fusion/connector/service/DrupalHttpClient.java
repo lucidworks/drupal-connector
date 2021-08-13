@@ -92,8 +92,10 @@ public class DrupalHttpClient {
             String requestBody = objectMapper.writeValueAsString(prepareLoginBody(username, password));
             byte[] loginBody = requestBody.getBytes(StandardCharsets.UTF_8);
 
-            //TODO ?_format=json - added if needed
-            URL obj = new URL(url);
+             URL obj = new URL(url + "?_format=json");
+            //URL obj = new URL(url);
+            log.info("URL={}", obj);
+
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
@@ -108,6 +110,18 @@ public class DrupalHttpClient {
             }
 
             int responseCode = con.getResponseCode();
+            log.error("responseCode={}", responseCode);
+
+            if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP) { // 302
+                // Save cookie for future GET Requests
+                cookie = con.getHeaderField("Set-Cookie") != null ?
+                    con.getHeaderField("Set-Cookie").split(";")[0] : "";
+                // with 302 the getInputStream fails
+                log.info("Successful login for user " + username);
+                log.info("cookie={}", cookie);
+                return "login for user" + username + " with 302";
+            }
+
             if (responseCode == HttpURLConnection.HTTP_OK) { // Success
                 // Read from the response
                 StringBuilder stringBuilder = new StringBuilder();
@@ -123,9 +137,11 @@ public class DrupalHttpClient {
                         con.getHeaderField("Set-Cookie").split(";")[0] : "";
 
                 log.info("Successful login for user " + username);
+                log.info("cookie={}", cookie);
+
                 return stringBuilder.toString();
             } else {
-                log.error("Unsuccessful login request, Status-Code: " + responseCode);
+                log.error("Unsuccessful login request, Status-Code: {}", responseCode);
                 return null;
             }
         } catch (IOException e) {
