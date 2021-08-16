@@ -3,11 +3,7 @@ package com.lucidworks.fusion.connector.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.lucidworks.fusion.connector.exception.RequestException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +41,7 @@ public class DrupalHttpClient {
      * @return The content from specified url
      */
     public String getContent(String url) {
-        log.debug("Making content request to url=" + url);
+        log.info("Making content request to url=" + url);
         try {
             Request.Builder requestBuilder = new Request.Builder()
                 .url(url);
@@ -53,7 +49,6 @@ public class DrupalHttpClient {
                 requestBuilder.addHeader("Cookie", cookie);
             }
             Request request = requestBuilder.build();
-
             Call call = client.newCall(request);
             try(Response response = call.execute()){
                 if(response.isSuccessful()){
